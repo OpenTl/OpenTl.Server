@@ -25,7 +25,6 @@ namespace OpenTl.Server.Front
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
                         IChannelPipeline pipeline = channel.Pipeline;
-                     
                     }));
 
                 IChannel boundChannel = await bootstrap.BindAsync(433);
