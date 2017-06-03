@@ -1,11 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Orleans.Server">
-      <Version>1.5.0-beta1</Version>
+      <Version>1.4.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj" />
+    <ProjectReference Include="..\OpenTl.Server.Back\OpenTl.Server.Back.csproj" />
   </ItemGroup>
 </Project>

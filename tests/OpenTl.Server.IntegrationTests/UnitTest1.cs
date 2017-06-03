@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -13,6 +14,16 @@ namespace OpenTl.Server.IntegrationTests
         {
             TcpClient client = new TcpClient();
             await client.ConnectAsync("localhost", 433);
+
+            var stream = client.GetStream();
+            StreamWriter streamWriter = new StreamWriter(stream);
+            await streamWriter.WriteLineAsync("kots");
+            streamWriter.Flush();
+                
+            StreamReader streamReader = new StreamReader(stream);
+            var line = await streamReader.ReadLineAsync();
+
+            Assert.Equal("kots, Hello!", line);
         }
     }
 }
