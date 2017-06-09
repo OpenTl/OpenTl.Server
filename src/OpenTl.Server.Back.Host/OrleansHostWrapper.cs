@@ -9,10 +9,12 @@ namespace OpenTl.Server.Back.Host
 {
     class OrleansHostWrapper
     {
-        private readonly SiloHost siloHost;
+        private readonly SiloHost _siloHost;
 
         public OrleansHostWrapper(ClusterConfiguration config, string[] args)
         {
+            config.UseStartupType<BackStartup>();
+
             var siloArgs = SiloArgs.ParseArguments(args);
             if (siloArgs == null)
             {
@@ -24,13 +26,13 @@ namespace OpenTl.Server.Back.Host
                 config.Globals.DeploymentId = siloArgs.DeploymentId;
             }
 
-            siloHost = new SiloHost(siloArgs.SiloName, config);
-            siloHost.LoadOrleansConfig();
+            _siloHost = new SiloHost(siloArgs.SiloName, config);
+            _siloHost.LoadOrleansConfig();
         }
 
         public int Run()
         {
-            if (siloHost == null)
+            if (_siloHost == null)
             {
                 SiloArgs.PrintUsage();
                 return 1;
@@ -38,21 +40,21 @@ namespace OpenTl.Server.Back.Host
 
             try
             {
-                siloHost.InitializeOrleansSilo();
+                _siloHost.InitializeOrleansSilo();
 
-                if (siloHost.StartOrleansSilo())
+                if (_siloHost.StartOrleansSilo())
                 {
-                    Console.WriteLine($"Successfully started Orleans silo '{siloHost.Name}' as a {siloHost.Type} node.");
+                    Console.WriteLine($"Successfully started Orleans silo '{_siloHost.Name}' as a {_siloHost.Type} node.");
                     return 0;
                 }
                 else
                 {
-                    throw new OrleansException($"Failed to start Orleans silo '{siloHost.Name}' as a {siloHost.Type} node.");
+                    throw new OrleansException($"Failed to start Orleans silo '{_siloHost.Name}' as a {_siloHost.Type} node.");
                 }
             }
             catch (Exception exc)
             {
-                siloHost.ReportStartupError(exc);
+                _siloHost.ReportStartupError(exc);
                 Console.Error.WriteLine(exc);
                 return 1;
             }
@@ -60,17 +62,17 @@ namespace OpenTl.Server.Back.Host
 
         public int Stop()
         {
-            if (siloHost != null)
+            if (_siloHost != null)
             {
                 try
                 {
-                    siloHost.StopOrleansSilo();
-                    siloHost.Dispose();
-                    Console.WriteLine($"Orleans silo '{siloHost.Name}' shutdown.");
+                    _siloHost.StopOrleansSilo();
+                    _siloHost.Dispose();
+                    Console.WriteLine($"Orleans silo '{_siloHost.Name}' shutdown.");
                 }
                 catch (Exception exc)
                 {
-                    siloHost.ReportStartupError(exc);
+                    _siloHost.ReportStartupError(exc);
                     Console.Error.WriteLine(exc);
                     return 1;
                 }

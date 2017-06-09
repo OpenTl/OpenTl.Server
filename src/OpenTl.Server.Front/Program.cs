@@ -15,6 +15,8 @@ namespace OpenTl.Server.Front
     {
         static void Main()
         {
+            Thread.Sleep(6000);
+
             InitializeOrleans();
             RunDotNettyAsync().Wait();   
         }

@@ -1,17 +1,31 @@
-﻿using System;
-using System.Net;
-using System.Text;
+﻿using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
 using OpenTl.Server.Back.Contracts;
 using Orleans;
+using Orleans.Runtime;
 
 namespace OpenTl.Server.Front
 {
     public class ClientHandler: ChannelHandlerAdapter
     {
+        private readonly IPackageRouterGrain _router = GrainClient.GrainFactory.GetGrain<IPackageRouterGrain>(0);
+
+        private static int _clientNumber;
+
+        private int _clientId;
+        private int _packageId;
+
+        public override void ChannelActive(IChannelHandlerContext context)
+        {
+            Interlocked.Increment(ref _clientNumber);
+            _clientId = _clientNumber;
+
+            base.ChannelActive(context);
+        }
+
         public override void ChannelRead(IChannelHandlerContext ctx, object msg)
         {
             var buffer = (IByteBuffer) msg;
@@ -19,19 +33,18 @@ namespace OpenTl.Server.Front
 
             buffer.GetBytes(buffer.ReaderIndex, data);
 
-            var name = Encoding.UTF8.GetString(data);
-
-            name = name.TrimEnd('\n', '\r');
+            var packageId = ++_packageId;
 
             Task.Run(async () =>
             {
-                var friend = GrainClient.GrainFactory.GetGrain<IHello>(0);
-                var result = await friend.SayHello(name) + "\n\r";
+                GrainClient.Logger.Info($"client id = {_clientId}, packageId = {packageId} - IN");
 
-                var resultData = Encoding.UTF8.GetBytes(result);
+                var resultData = await _router.Handle(data);
 
-                IByteBuffer resultBuffer = Unpooled.WrappedBuffer(resultData);
+                var resultBuffer = Unpooled.WrappedBuffer(resultData);
                 await ctx.WriteAndFlushAsync(resultBuffer);
+
+                GrainClient.Logger.Info($"client id = {_clientId}, packageId = {packageId} - OUT");
             });
 
             base.ChannelRead(ctx, msg);
