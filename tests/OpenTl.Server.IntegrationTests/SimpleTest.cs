@@ -1,52 +1,45 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTl.Schema;
+using OpenTl.Schema.Serialization;
 using Xunit;
 
 namespace OpenTl.Server.IntegrationTests
 {
     public class SimpleTest
     {
+        private static readonly Random Random = new Random();
+
         [Fact]
-        public async Task SendHello()
+        public async Task RequestReqPqTest()
         {
-            TcpClient client = new TcpClient();
+            var client = new TcpClient();
             await client.ConnectAsync("localhost", 433);
 
             var networkStream = client.GetStream();
 
-            for (int i = 0; i < 150; i++)
+            var data = new byte[16];
+            Random.NextBytes(data);
+
+            var request = new RequestReqPq {Nonce = data};
+
+            var stream = Serializer.SerializeObject(request);
+            await stream.CopyToAsync(networkStream);
+
+            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                using (var stream = new MemoryStream())
-                {
-                    using (var streamWriter = new BinaryWriter(stream, Encoding.UTF8, true))
-                    {
-                        streamWriter.Write(1);
-                        streamWriter.Write("kots");
-                    }
-
-                    stream.Seek(0, SeekOrigin.Begin);
-                    await stream.CopyToAsync(networkStream);
-                }
-
-                using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
-                {
-                    Assert.Equal(2, streamReader.ReadInt32());
-                    Assert.Equal("kots, Hello!", streamReader.ReadString());
-                }
+                var response = (TResPQ)Serializer.DeserializeObject(streamReader);
+                
+                Assert.Equal(data, response.Nonce);
+                Assert.Equal(16, response.ServerNonce.Length);
+                Assert.NotEmpty(response.Pq);
+                Assert.Equal(new List<long>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, response.ServerPublicKeyFingerprints.Items);
             }
-        }
-
-        [Fact]
-        public void SendHelloParallel()
-        {
-            Parallel.For(0, 1000, i =>
-            {
-                SendHello().Wait();
-            });
         }
     }
 }

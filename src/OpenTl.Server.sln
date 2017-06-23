@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{04F2D3E7-7D74-4762-B8D6-4A2CEDB33225}"
 EndProject
@@ -13,9 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTl.Server.Back.Host", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTl.Server.IntegrationTests", "..\tests\OpenTl.Server.IntegrationTests\OpenTl.Server.IntegrationTests.csproj", "{6361B628-51AF-486E-BFDC-CBA81A3525DF}"
 EndProject
-Project("{BFA89C3F-D101-489A-9077-FFCB7CC82B8A}") = "OpenTl.Server.Back.Contracts", "OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj", "{E73DDB21-D0E9-4D0F-B6B1-699123EFD9D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Server.Back.Contracts", "OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj", "{E73DDB21-D0E9-4D0F-B6B1-699123EFD9D7}"
 EndProject
-Project("{0C146BAA-B4BC-4ACF-BD81-E97E96CB96E7}") = "OpenTl.Server.Back", "OpenTl.Server.Back\OpenTl.Server.Back.csproj", "{7E001E3D-4186-4565-9A42-A88F4149689A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Server.Back", "OpenTl.Server.Back\OpenTl.Server.Back.csproj", "{7E001E3D-4186-4565-9A42-A88F4149689A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Schema", "..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj", "{05E7ECB2-C396-4954-A6D4-E93751F1E015}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

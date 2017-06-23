@@ -13,7 +13,7 @@ namespace OpenTl.Server.Back.Host
 
         public OrleansHostWrapper(ClusterConfiguration config, string[] args)
         {
-            config.UseStartupType<BackStartup>();
+            config.UseStartupType<BackServerStartup>();
 
             var siloArgs = SiloArgs.ParseArguments(args);
             if (siloArgs == null)

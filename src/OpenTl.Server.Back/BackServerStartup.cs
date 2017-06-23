@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
 
 namespace OpenTl.Server.Back
 {
-    public class BackStartup
+    public class BackServerStartup
     {
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {

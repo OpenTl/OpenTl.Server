@@ -11,6 +11,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj" />
     <ProjectReference Include="..\OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj">
       <Project>{E73DDB21-D0E9-4D0F-B6B1-699123EFD9D7}</Project>
       <Name>OpenTl.Server.Back.Contracts</Name>

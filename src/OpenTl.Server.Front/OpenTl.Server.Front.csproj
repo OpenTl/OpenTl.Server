@@ -8,6 +8,9 @@
     <PackageReference Include="Microsoft.Orleans.Client">
       <Version>1.4.2</Version>
     </PackageReference>
+    <PackageReference Include="System.Net.NetworkInformation">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj">
