@@ -16,5 +16,9 @@
       <Project>{E73DDB21-D0E9-4D0F-B6B1-699123EFD9D7}</Project>
       <Name>OpenTl.Server.Back.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OpenTl.Utils\OpenTl.Utils.csproj">
+      <Project>{93ae4bf8-d497-4d5e-a737-ea5c2fd39bf3}</Project>
+      <Name>OpenTl.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

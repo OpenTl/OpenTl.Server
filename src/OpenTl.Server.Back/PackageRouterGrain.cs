@@ -16,6 +16,7 @@ namespace OpenTl.Server.Back
         public override Task OnActivateAsync()
         {
             _handlers[typeof(RequestReqPq)] = GrainFactory.GetGrain<IRequestReqPqHandler>(0);
+            _handlers[typeof(RequestReqDHParams)] = GrainFactory.GetGrain<IRequestReqDhParamsHandler>(0);
 
             return base.OnActivateAsync();
         }
@@ -26,7 +27,7 @@ namespace OpenTl.Server.Back
 
             var responce = await _handlers[obj.GetType()].Handle(obj);
 
-            return Serializer.SerializeObject(responce).ToArray();
+            return Serializer.SerializeObject(responce);
         }
     }
 }

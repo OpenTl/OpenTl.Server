@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Server.Back", "OpenT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Schema", "..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj", "{05E7ECB2-C396-4954-A6D4-E93751F1E015}"
 EndProject
+Project("{17F05804-0ED9-4FDA-B3BA-6D7429E44806}") = "OpenTl.Utils", "OpenTl.Utils\OpenTl.Utils.csproj", "{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,5 +65,6 @@ Global
 		{6361B628-51AF-486E-BFDC-CBA81A3525DF} = {EE571612-9531-491E-9B75-8308B6BD1A42}
 		{E73DDB21-D0E9-4D0F-B6B1-699123EFD9D7} = {04F2D3E7-7D74-4762-B8D6-4A2CEDB33225}
 		{7E001E3D-4186-4565-9A42-A88F4149689A} = {04F2D3E7-7D74-4762-B8D6-4A2CEDB33225}
+		{93AE4BF8-D497-4D5E-A737-EA5C2FD39BF3} = {04F2D3E7-7D74-4762-B8D6-4A2CEDB33225}
 	EndGlobalSection
 EndGlobal

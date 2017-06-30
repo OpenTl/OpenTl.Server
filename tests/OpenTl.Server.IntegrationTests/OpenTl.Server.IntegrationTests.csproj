@@ -8,6 +8,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj" />
+    <ProjectReference Include="..\..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj">
+      <Project>{05e7ecb2-c396-4954-a6d4-e93751f1e015}</Project>
+      <Name>OpenTl.Schema</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\OpenTl.Utils\OpenTl.Utils.csproj">
+      <Project>{93ae4bf8-d497-4d5e-a737-ea5c2fd39bf3}</Project>
+      <Name>OpenTl.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
