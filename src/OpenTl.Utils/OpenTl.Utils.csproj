@@ -2,4 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard15;net46</TargetFrameworks>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
+  </ItemGroup>
 </Project>

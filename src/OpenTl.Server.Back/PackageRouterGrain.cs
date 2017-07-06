@@ -27,7 +27,7 @@ namespace OpenTl.Server.Back
 
             var responce = await _handlers[obj.GetType()].Handle(obj);
 
-            return Serializer.SerializeObject(responce);
+            return Serializer.SerializeObjectWithBuffer(responce);
         }
     }
 }

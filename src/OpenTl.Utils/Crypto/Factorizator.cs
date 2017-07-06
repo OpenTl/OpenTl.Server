@@ -1,5 +1,4 @@
 ﻿using System;
-using OpenTl.Server.Back.Crypto;
 
 namespace OpenTl.Utils.Crypto
 {
@@ -16,13 +15,13 @@ namespace OpenTl.Utils.Crypto
 
         public FactorizedPair(long p, long q)
         {
-            this._p = BigInteger.ValueOf(p);
-            this._q = BigInteger.ValueOf(q);
+            this._p = new BigInteger(p);
+            this._q = new BigInteger(q);
         }
 
-        public BigInteger Min => _p.Min(_q);
+        public BigInteger Min => _p.min(_q);
 
-        public BigInteger Max => _p.Max(_q);
+        public BigInteger Max => _p.max(_q);
 
         public override string ToString()
         {
@@ -91,11 +90,11 @@ namespace OpenTl.Utils.Crypto
 
         public static FactorizedPair Factorize(BigInteger pq)
         {
-            if (pq.BitLength < 64)
+            if (pq.bitCount() < 64)
             {
-                var pqlong = pq.LongValue;
+                var pqlong = pq.LongValue();
                 var divisor = FindSmallMultiplierLopatin(pqlong);
-                return new FactorizedPair(BigInteger.ValueOf(divisor), BigInteger.ValueOf(pqlong / divisor));
+                return new FactorizedPair(new BigInteger(divisor), new BigInteger(pqlong / divisor));
             }
             // TODO: port pollard factorization
             throw new InvalidOperationException("pq too long; TODO: port the pollard algo");

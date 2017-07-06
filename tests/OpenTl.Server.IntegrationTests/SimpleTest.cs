@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTl.Schema;
 using OpenTl.Schema.Serialization;
-using OpenTl.Server.Back.Crypto;
 using OpenTl.Utils.Crypto;
 using Xunit;
 
@@ -28,7 +28,7 @@ namespace OpenTl.Server.IntegrationTests
             Assert.Equal(nonce, response.Nonce);
             Assert.Equal(16, response.ServerNonce.Length);
             Assert.NotEmpty(response.Pq);
-            Assert.Equal(new List<long> {1}, response.ServerPublicKeyFingerprints.Items);
+            Assert.Equal(new List<long> {1507157865616355199}, response.ServerPublicKeyFingerprints.Items);
         }
         
         [Fact]
@@ -43,39 +43,39 @@ namespace OpenTl.Server.IntegrationTests
 
             var pqPair = Factorizator.Factorize(new BigInteger(pqData));
 
-            var p = SerializationUtils.GetString(pqPair.Min.ToByteArrayUnsigned());
-            var q = SerializationUtils.GetString(pqPair.Max.ToByteArrayUnsigned());
-
-            var newNonce = new byte[32];
-            Random.NextBytes(newNonce);
-            
-            var pqInnerData = new TPQInnerData
-            {
-                Pq = reqPqResponse.Pq,
-                P = p,
-                Q = q,
-                ServerNonce = reqPqResponse.ServerNonce,
-                Nonce = reqPqResponse.Nonce,
-                NewNonce = newNonce
-            };
-
-            var innerdata = Serializer.SerializeObject(pqInnerData);
-
-            var fingerprint = reqPqResponse.ServerPublicKeyFingerprints[0];
-            var chippertext = Rsa.Encrypt(fingerprint, innerdata, 0, innerdata.Length);
-
-            var request = new RequestReqDHParams
-            {
-                Nonce = reqPqResponse.Nonce,
-                P = p,
-                Q = q,
-                ServerNonce = reqPqResponse.ServerNonce,
-                PublicKeyFingerprint = fingerprint,
-                EncryptedData = SerializationUtils.GetString(chippertext)
-            };
-
-            var requestData = Serializer.SerializeObject(request);
-            await networkStream.WriteAsync(requestData, 0, requestData.Length);
+//            var p = SerializationUtils.GetString(pqPair.Min().ToByteArray());
+//            var q = SerializationUtils.GetString(pqPair.Max().ToByteArray());
+//
+//            var newNonce = new byte[32];
+//            Random.NextBytes(newNonce);
+//            
+//            var pqInnerData = new TPQInnerData
+//            {
+//                Pq = reqPqResponse.Pq,
+//                P = p,
+//                Q = q,
+//                ServerNonce = reqPqResponse.ServerNonce,
+//                Nonce = reqPqResponse.Nonce,
+//                NewNonce = newNonce    
+//            };
+//
+//            var innerdata = Serializer.SerializeObjectWithoutBuffer(pqInnerData);
+//
+//            var fingerprint = reqPqResponse.ServerPublicKeyFingerprints[0];
+//            var chippertext = Rsa.Encrypt(fingerprint, innerdata, 0, innerdata.Length);
+//
+//            var request = new RequestReqDHParams
+//            {
+//                Nonce = reqPqResponse.Nonce,
+//                P = p,
+//                Q = q,
+//                ServerNonce = reqPqResponse.ServerNonce,
+//                PublicKeyFingerprint = fingerprint,
+//                EncryptedData = SerializationUtils.GetString(chippertext)
+//            };
+//
+//            var requestData = Serializer.SerializeObjectWithBuffer(request);
+//            await networkStream.WriteAsync(requestData, 0, requestData.Length);
 
 //            Assert.Equal(nonce, reqPqResponse.Nonce);
 //            Assert.Equal(16, reqPqResponse.ServerNonce.Length);
@@ -89,7 +89,7 @@ namespace OpenTl.Server.IntegrationTests
 
             var request = new RequestReqPq {Nonce = nonce};
 
-            var binary = Serializer.SerializeObject(request);
+            var binary = Serializer.SerializeObjectWithBuffer(request);
             await networkStream.WriteAsync(binary, 0, binary.Length);
 
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
