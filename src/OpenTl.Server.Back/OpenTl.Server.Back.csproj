@@ -21,4 +21,7 @@
       <Name>OpenTl.Utils</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Runtime.Caching" />
+  </ItemGroup>
 </Project>

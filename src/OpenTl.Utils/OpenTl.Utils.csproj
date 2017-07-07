@@ -3,6 +3,7 @@
     <TargetFrameworks>netstandard15;net46</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BarsGroup.CodeGuard" Version="3.2.43" />
     <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
   </ItemGroup>
 </Project>

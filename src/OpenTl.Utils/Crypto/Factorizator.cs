@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenTl.Utils.Crypto
 {
@@ -19,9 +20,9 @@ namespace OpenTl.Utils.Crypto
             this._q = new BigInteger(q);
         }
 
-        public BigInteger Min => _p.min(_q);
+        public BigInteger Min => BigInteger.Min(_p, _q);
 
-        public BigInteger Max => _p.max(_q);
+        public BigInteger Max => BigInteger.Max(_p, _q);
 
         public override string ToString()
         {
@@ -33,17 +34,17 @@ namespace OpenTl.Utils.Crypto
     {
         private static readonly Random Random = new Random();
 
-        private static long FindSmallMultiplierLopatin(long what)
+        private static BigInteger FindSmallMultiplierLopatin(BigInteger what)
         {
-            long g = 0;
+            BigInteger g = 0;
             for (var i = 0; i < 3; i++)
             {
                 var q = (Random.Next(128) & 15) + 17;
-                long x = Random.Next(1000000000) + 1, y = x;
+                BigInteger x = Random.Next(1000000000) + 1, y = x;
                 var lim = 1 << (i + 18);
                 for (var j = 1; j < lim; j++)
                 {
-                    long a = x, b = x, c = q;
+                    BigInteger a = x, b = x, c = q;
                     while (b != 0)
                     {
                         if ((b & 1) != 0)
@@ -70,10 +71,10 @@ namespace OpenTl.Utils.Crypto
             }
 
             var p = what / g;
-            return Math.Min(p, g);
+            return BigInteger.Min(p, g);
         }
 
-        private static long Gcd(long a, long b)
+        private static BigInteger Gcd(BigInteger a, BigInteger b)
         {
             while (a != 0 && b != 0)
             {
@@ -90,11 +91,10 @@ namespace OpenTl.Utils.Crypto
 
         public static FactorizedPair Factorize(BigInteger pq)
         {
-            if (pq.bitCount() < 64)
+            if (pq.ToByteArray().Length <= 8)
             {
-                var pqlong = pq.LongValue();
-                var divisor = FindSmallMultiplierLopatin(pqlong);
-                return new FactorizedPair(new BigInteger(divisor), new BigInteger(pqlong / divisor));
+                var divisor = FindSmallMultiplierLopatin(pq);
+                return new FactorizedPair(divisor, pq / divisor);
             }
             // TODO: port pollard factorization
             throw new InvalidOperationException("pq too long; TODO: port the pollard algo");

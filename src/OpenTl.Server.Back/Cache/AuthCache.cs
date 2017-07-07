@@ -1,0 +1,38 @@
+﻿using System;
+using System.Numerics;
+using System.Runtime.Caching;
+
+namespace OpenTl.Server.Back.Cache
+{
+    public class AuthCache
+    {
+        private static readonly MemoryCache Cache  = new MemoryCache("auth");
+
+        public byte[] Nonce { get; set; }
+        
+        public byte[] ServerNonce { get; set; }
+        
+        public BigInteger P { get; set; }
+        
+        public BigInteger Q { get; set; }
+        
+        public BigInteger D { get; set; }
+
+        private AuthCache()
+        {
+        }
+        
+        public static AuthCache GetCache(Guid clientId)
+        {
+            return (AuthCache) Cache.Get(clientId.ToString());
+        }
+        
+        public static AuthCache NewAuthCache(Guid clientId)
+        {
+            var cacheItem = new AuthCache();
+            Cache.Add(clientId.ToString(), cacheItem, new CacheItemPolicy {AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(10)});
+
+            return cacheItem;
+        }
+    }
+}

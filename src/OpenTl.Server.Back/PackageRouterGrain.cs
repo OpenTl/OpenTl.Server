@@ -21,11 +21,11 @@ namespace OpenTl.Server.Back
             return base.OnActivateAsync();
         }
 
-        public async Task<byte[]> Handle(byte[] package)
+        public async Task<byte[]> Handle(Guid clientId, byte[] package)
         {
             var obj = Serializer.DeserializeObject(package);
 
-            var responce = await _handlers[obj.GetType()].Handle(obj);
+            var responce = await _handlers[obj.GetType()].Handle(clientId, obj);
 
             return Serializer.SerializeObjectWithBuffer(responce);
         }

@@ -15,8 +15,6 @@ namespace OpenTl.Server.Front
     {
         static void Main()
         {
-            Thread.Sleep(6000);
-
             InitializeOrleans();
             RunDotNettyAsync().Wait();   
         }
@@ -35,11 +33,11 @@ namespace OpenTl.Server.Front
                     .Option(ChannelOption.SoBacklog, 100)
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
-                        IChannelPipeline pipeline = channel.Pipeline;
+                        var pipeline = channel.Pipeline;
                         pipeline.AddLast(new ClientHandler());
                     }));
 
-                IChannel boundChannel = await bootstrap.BindAsync(433);
+                var boundChannel = await bootstrap.BindAsync(433);
 
                 Console.ReadLine();
 
@@ -74,7 +72,9 @@ namespace OpenTl.Server.Front
 
         private static void InitializeOrleansWithRetries(ClientConfiguration config, int initializeAttemptsBeforeFailing)
         {
-            int attempt = 0;
+            config.TraceFilePattern = null;
+            
+            var attempt = 0;
             while (true)
             {
                 try
