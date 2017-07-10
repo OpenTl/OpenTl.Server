@@ -3,33 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTl.Common.Auth;
+using OpenTl.Common.Crypto;
 using OpenTl.Schema;
 using OpenTl.Schema.Serialization;
 using OpenTl.Utils.Crypto;
+using Org.BouncyCastle.Math;
 using Xunit;
 
 namespace OpenTl.Server.IntegrationTests
 {
     public class SimpleTest
     {
-        private static readonly Random Random = new Random();
+        private const string PublicKey = 
+@"-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8k1LTajz2N9RMjDnv1Jq
+LUmE+MZWCOTMC0FqjZmjNWm9zhgy7Rv12nUz3I2rLiKEZp/O42ThfTtDgRVrFkkE
+ALl0YWrWwt5QQq5k51POngCt9n6bLi2Q82HYMotvIhN6w15B692Urbu6RtDRnfdb
+ojRDWGh/DNElRIuy+T1bWCIISCTX47PrXJs4I1WPw/xYDl9zA9xhEMIQx6NwoRlj
+XBdWrYayFbllXqV3EPhhIpuQ6cqNsudbLGCFdsaRuNuTJzo43hf549xrumH0I/4K
+1FLCbxCWz3gnWLaxoN+RtSJvXvyEfMFRdsWSW/mMr3WFwb8nakabgQ1YbtT5576M
+OQIDAQAB
+-----END PUBLIC KEY-----";
 
         [Fact]
         public async Task RequestReqPqTest()
         {
             var networkStream = await GetServerStream();
 
-            var nonce = new byte[16];
+            var response = await GetReqPq(networkStream);
+            var resPq = response.Item1;
+            var nonce = response.Item2;
             
-            var response = await GetReqPq(networkStream, nonce);
-
-            Assert.Equal(nonce, response.Nonce);
-            Assert.Equal(16, response.ServerNonce.Length);
-            Assert.NotEmpty(response.Pq);
-            Assert.Equal(new List<long> {1507157865616355199}, response.ServerPublicKeyFingerprints.Items);
+            Assert.Equal(nonce, resPq.Nonce);
+            Assert.Equal(16, resPq.ServerNonce.Length);
+            Assert.NotEmpty(resPq.Pq);
+            Assert.Equal(new List<long> {1507157865616355199}, resPq.ServerPublicKeyFingerprints.Items);
         }
         
         [Fact]
@@ -37,65 +48,23 @@ namespace OpenTl.Server.IntegrationTests
         {
             var networkStream = await GetServerStream();
 
-            var nonce = new byte[16];
-            var reqPqResponse = await GetReqPq(networkStream, nonce);
+            var response = await GetReqPq(networkStream);
+            var resPq = response.Item1;
+            var nonce = response.Item2;
 
-            var pqData = SerializationUtils.GetBinaryFromString(reqPqResponse.Pq);
+            var requestData = ReqDhParamsHelper.Client(resPq, PublicKey);
 
-            var pqPair = Factorizator.Factorize(new BigInteger(pqData));
-
-            var p = SerializationUtils.GetString(pqPair.Min.ToByteArray());
-            var q = SerializationUtils.GetString(pqPair.Max.ToByteArray());
-
-            var newNonce = new byte[32];
-            Random.NextBytes(newNonce);
-            
-            var pqInnerData = new TPQInnerData
-            {
-                Pq = reqPqResponse.Pq,
-                P = p,
-                Q = q,
-                ServerNonce = reqPqResponse.ServerNonce,
-                Nonce = reqPqResponse.Nonce,
-                NewNonce = newNonce    
-            };
-
-            var innerdata = Serializer.SerializeObjectWithoutBuffer(pqInnerData);
-
-            var fingerprint = reqPqResponse.ServerPublicKeyFingerprints[0];
-            var chippertext = Rsa.Encrypt(fingerprint, innerdata, 0, innerdata.Length);
-
-            var request = new RequestReqDHParams
-            {
-                Nonce = reqPqResponse.Nonce,
-                P = p,
-                Q = q,
-                ServerNonce = reqPqResponse.ServerNonce,
-                PublicKeyFingerprint = fingerprint,
-                EncryptedData = SerializationUtils.GetStringFromBinary(chippertext)
-            };
-
-            var requestData = Serializer.SerializeObjectWithBuffer(request);
             await networkStream.WriteAsync(requestData, 0, requestData.Length);
-
-            Assert.Equal(nonce, reqPqResponse.Nonce);
-            Assert.Equal(16, reqPqResponse.ServerNonce.Length);
-            Assert.NotEmpty(reqPqResponse.Pq);
-            Assert.Equal(new List<long> {1507157865616355199}, reqPqResponse.ServerPublicKeyFingerprints.Items);
         }
 
-        private static async Task<TResPQ> GetReqPq(Stream networkStream, byte[] nonce)
+        private static async Task<Tuple<TResPQ, byte[]>> GetReqPq(Stream networkStream)
         {
-            Random.NextBytes(nonce);
-
-            var request = new RequestReqPq {Nonce = nonce};
-
-            var binary = Serializer.SerializeObjectWithBuffer(request);
-            await networkStream.WriteAsync(binary, 0, binary.Length);
+            var request = ReqPqHelper.Client(out var nonce);
+            await networkStream.WriteAsync(request, 0, request.Length);
 
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                return (TResPQ) Serializer.DeserializeObject(streamReader);
+                return Tuple.Create((TResPQ)Serializer.DeserializeObject(streamReader), nonce);
             }
         }
 

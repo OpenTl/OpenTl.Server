@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.Caching;
+using Org.BouncyCastle.Math;
 
 namespace OpenTl.Server.Back.Cache
 {
@@ -16,8 +16,6 @@ namespace OpenTl.Server.Back.Cache
         
         public BigInteger Q { get; set; }
         
-        public BigInteger D { get; set; }
-
         private AuthCache()
         {
         }
