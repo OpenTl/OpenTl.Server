@@ -6,6 +6,8 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace OpenTl.Common.Crypto
 {
+    using Org.BouncyCastle.Crypto.Parameters;
+
     public static class RSAEncryption
     {
         public static byte[] RsaEncryptWithPublic(byte[] bytesToEncrypt, string publicKey)
@@ -14,7 +16,7 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(publicKey))
             {
-                var keyParameter = (AsymmetricKeyParameter) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaKeyParameters) new PemReader(txtreader).ReadObject();
 
                 encryptEngine.Init(true, keyParameter);
             }
@@ -28,9 +30,9 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(privateKey))
             {
-                var keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaPrivateCrtKeyParameters) new PemReader(txtreader).ReadObject();
 
-                encryptEngine.Init(true, keyPair.Private);
+                encryptEngine.Init(true, keyParameter);
             }
 
             return encryptEngine.ProcessBlock(bytesToEncrypt, 0, bytesToEncrypt.Length);
@@ -45,9 +47,9 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(privateKey))
             {
-                var keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaPrivateCrtKeyParameters) new PemReader(txtreader).ReadObject();
 
-                decryptEngine.Init(false, keyPair.Private);
+                decryptEngine.Init(false, keyParameter);
             }
 
             return decryptEngine.ProcessBlock(bytesToDecrypt, 0, bytesToDecrypt.Length);
@@ -59,7 +61,7 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(publicKey))
             {
-                var keyParameter = (AsymmetricKeyParameter) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaKeyParameters) new PemReader(txtreader).ReadObject();
 
                 decryptEngine.Init(false, keyParameter);
             }

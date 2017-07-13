@@ -10,7 +10,8 @@ namespace OpenTl.Server.Back.Host
     public class Program
     {
         private static OrleansHostWrapper hostWrapper;
-        static int Main(string[] args)
+
+        private static int Main(string[] args)
         {
             int exitCode = StartSilo(args);
 

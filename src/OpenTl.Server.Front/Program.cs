@@ -13,13 +13,13 @@ namespace OpenTl.Server.Front
 {
     class Program
     {
-        static void Main()
+        private static void Main()
         {
             InitializeOrleans();
             RunDotNettyAsync().Wait();   
         }
 
-        static async Task RunDotNettyAsync()
+        private static async Task RunDotNettyAsync()
         {
             var bossGroup = new MultithreadEventLoopGroup(18);
             var workerGroup = new MultithreadEventLoopGroup();
@@ -51,8 +51,7 @@ namespace OpenTl.Server.Front
             }
         }
 
-
-        static int InitializeOrleans()
+        private static int InitializeOrleans()
         {
             var config = ClientConfiguration.LocalhostSilo();
             try

@@ -8,18 +8,27 @@ using Org.BouncyCastle.Math;
 
 namespace OpenTl.Common.Auth
 {
+    using System.Linq;
+
+    using BarsGroup.CodeGuard;
+
+    using OpenTl.Utils.GuardExtentions;
+
     public static class ReqDhParamsHelper
     {
         private static readonly Random Random = new Random();
         
-        public static byte[] Client(TResPQ resPq, string publicKey)
+        public static RequestReqDHParams Client(TResPQ resPq, string publicKey)
         {
             var pqData = SerializationUtils.GetBinaryFromString(resPq.Pq);
 
-            var pqPair = Factorizator.Factorize(new BigInteger(pqData));
+            var pq = new BigInteger(pqData);
+            var p = BigIntegerHelper.SmallestPrimeFactor(pq);;
+            var q = pq.Divide(p);
+            
+            var pStr = SerializationUtils.GetString(p.ToByteArray());
+            var qStr = SerializationUtils.GetString(q.ToByteArray());
 
-            var p = SerializationUtils.GetString(pqPair.Min.ToByteArray());
-            var q = SerializationUtils.GetString(pqPair.Max.ToByteArray());
             
             var newNonce = new byte[32];
             Random.NextBytes(newNonce);
@@ -27,8 +36,8 @@ namespace OpenTl.Common.Auth
             var pqInnerData = new TPQInnerData
             {
                 Pq = resPq.Pq,
-                P = p,
-                Q = q,
+                P = pStr,
+                Q = qStr,
                 ServerNonce = resPq.ServerNonce,
                 Nonce = resPq.Nonce,
                 NewNonce = newNonce    
@@ -65,17 +74,15 @@ namespace OpenTl.Common.Auth
                 }
             }
             
-            var request = new RequestReqDHParams
+            return new RequestReqDHParams
             {
                 Nonce = resPq.Nonce,
-                P = p,
-                Q = q,
+                P = pStr,
+                Q = qStr,
                 ServerNonce = resPq.ServerNonce,
                 PublicKeyFingerprint = fingerprint,
                 EncryptedData = SerializationUtils.GetStringFromBinary(ciphertext)
             };
-
-           return Serializer.SerializeObjectWithBuffer(request);
         }
 
         public static void Server(RequestReqDHParams reqDhParams, string privateKey)
@@ -94,7 +101,18 @@ namespace OpenTl.Common.Auth
             var encryptedData = new byte[dataLength];
             encryptedDataWithPadding.CopyTo(encryptedData, index);
 
-            var innerData = RSAEncryption.RsaDecryptWithPrivate(encryptedData, privateKey);
+            var innerDataWithHash = RSAEncryption.RsaDecryptWithPrivate(encryptedData, privateKey);
+
+            var shaHashsum = innerDataWithHash.Take(20).ToArray();
+
+            var innerData = innerDataWithHash.Skip(20).ToArray();
+            
+            using (var sha1 = SHA1.Create())
+            {
+                var hashsum = sha1.ComputeHash(innerData, 0, innerData.Length);
+                Guard.That(shaHashsum).IsItemsEquals(hashsum);
+            }
+            
             var pqInnerData = Serializer.DeserializeObject(innerData).Cast<TPQInnerData>();
 //            using (var buffer = new MemoryStream(encryptedDataWithPadding))
 //            using (var reader = new BinaryReader(buffer))

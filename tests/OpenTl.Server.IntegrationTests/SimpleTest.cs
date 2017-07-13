@@ -52,15 +52,20 @@ OQIDAQAB
             var resPq = response.Item1;
             var nonce = response.Item2;
 
-            var requestData = ReqDhParamsHelper.Client(resPq, PublicKey);
+            var reqDhParams = ReqDhParamsHelper.Client(resPq, PublicKey);
 
-            await networkStream.WriteAsync(requestData, 0, requestData.Length);
+            var reqDhParamsData = Serializer.SerializeObjectWithoutBuffer(reqDhParams);
+            
+            await networkStream.WriteAsync(reqDhParamsData, 0, reqDhParamsData.Length);
         }
 
         private static async Task<Tuple<TResPQ, byte[]>> GetReqPq(Stream networkStream)
         {
-            var request = ReqPqHelper.Client(out var nonce);
-            await networkStream.WriteAsync(request, 0, request.Length);
+            var resPq = ReqPqHelper.Client(out var nonce);
+
+            var resPqData = Serializer.SerializeObjectWithoutBuffer(resPq);
+            
+            await networkStream.WriteAsync(resPqData, 0, resPqData.Length);
 
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
