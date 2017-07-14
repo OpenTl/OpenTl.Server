@@ -24,7 +24,7 @@ namespace OpenTl.Server.Back.Auth
 
             cache.Nonce = obj.Nonce;
                 
-            ReqDhParamsHelper.Server(obj, RsaHelper.PrivateKey);
+            ReqDhParamsHelper.Server(obj, RsaHelper.PrivateKey, out var parameters);
 
             return null;
         }

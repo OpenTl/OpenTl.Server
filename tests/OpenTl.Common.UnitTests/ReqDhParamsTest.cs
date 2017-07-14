@@ -60,7 +60,7 @@ EQIDAQAB
             var resPq = ReqPqHelper.Server(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
 
             var reqDhParams = ReqDhParamsHelper.Client(resPq, PublicKey);
-            ReqDhParamsHelper.Server(reqDhParams, PrivateKey);
+            ReqDhParamsHelper.Server(reqDhParams, PrivateKey, out var parameters);
         }
     }
 }

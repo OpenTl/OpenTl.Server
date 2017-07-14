@@ -14,6 +14,11 @@ namespace OpenTl.Common.Auth
 
     using OpenTl.Utils.GuardExtentions;
 
+    using Org.BouncyCastle.Crypto;
+    using Org.BouncyCastle.Crypto.Generators;
+    using Org.BouncyCastle.Crypto.Parameters;
+    using Org.BouncyCastle.Security;
+
     public static class ReqDhParamsHelper
     {
         private static readonly Random Random = new Random();
@@ -85,10 +90,35 @@ namespace OpenTl.Common.Auth
             };
         }
 
-        public static void Server(RequestReqDHParams reqDhParams, string privateKey)
+        public static void Server(RequestReqDHParams reqDhParams, string privateKey, out DHParameters dhParameters)
+        {
+            var pqInnerData = DeserializeRequest(reqDhParams, privateKey);
+
+            var generator = new DHParametersGenerator();
+            generator.Init(2048, 100, new SecureRandom());
+
+            dhParameters = generator.GenerateParameters();
+
+//            KeyGenerationParameters kgp = new DHKeyGenerationParameters(new SecureRandom(), dhParameters);
+//            var keyGen = GeneratorUtilities.GetKeyPairGenerator("DH");
+//            keyGen.Init(kgp);
+//            
+//            var aliceKeyPair = keyGen.GenerateKeyPair();
+//            aliceKeyPair.
+            
+            var dhInnerData = new TServerDHInnerData
+                              {
+                                  DhPrime = SerializationUtils.GetStringFromBinary(dhParameters.P.ToByteArray()),
+                                  Nonce = pqInnerData.Nonce,
+                                  ServerNonce = pqInnerData.ServerNonce,
+                                  G = dhParameters.G.IntValue,
+                              };
+        }
+
+        private static TPQInnerData DeserializeRequest(RequestReqDHParams reqDhParams, string privateKey)
         {
             var encryptedDataWithPadding = SerializationUtils.GetBinaryFromString(reqDhParams.EncryptedData);
-            
+
             int index;
             for (index = 0; index < encryptedDataWithPadding.Length; index++)
             {
@@ -106,18 +136,22 @@ namespace OpenTl.Common.Auth
             var shaHashsum = innerDataWithHash.Take(20).ToArray();
 
             var innerData = innerDataWithHash.Skip(20).ToArray();
-            
+
             using (var sha1 = SHA1.Create())
             {
                 var hashsum = sha1.ComputeHash(innerData, 0, innerData.Length);
                 Guard.That(shaHashsum).IsItemsEquals(hashsum);
             }
-            
-            var pqInnerData = Serializer.DeserializeObject(innerData).Cast<TPQInnerData>();
-//            using (var buffer = new MemoryStream(encryptedDataWithPadding))
-//            using (var reader = new BinaryReader(buffer))
-//            {
-//            }
+
+            return Serializer.DeserializeObject(innerData).Cast<TPQInnerData>();
+        }
+
+        private static DHParameters GenerageDhPrime()
+        {
+            var generator = new DHParametersGenerator();
+            generator.Init(2048, 100, new SecureRandom());
+
+            return generator.GenerateParameters();
         }
     }
 }
