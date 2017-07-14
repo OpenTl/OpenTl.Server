@@ -15,6 +15,8 @@ using OpenTl.Utils.GuardExtentions;
 
 namespace OpenTl.Server.Back.Auth
 {
+    using OpenTl.Common.Auth.Server;
+
     public class RequestReqDhParamsHandlerGrain : BaseObjectHandlerGrain<RequestReqDHParams, IServerDHParams>,
         IRequestReqDhParamsHandler
     {
@@ -24,7 +26,7 @@ namespace OpenTl.Server.Back.Auth
 
             cache.Nonce = obj.Nonce;
                 
-            ReqDhParamsHelper.Server(obj, RsaHelper.PrivateKey, out var parameters);
+            Step2ServerHelper.GetResponse(obj, RsaHelper.PrivateKey, out var parameters);
 
             return null;
         }

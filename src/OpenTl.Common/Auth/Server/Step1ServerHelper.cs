@@ -1,23 +1,17 @@
-﻿using System;
-using OpenTl.Schema;
-using OpenTl.Schema.Serialization;
-using Org.BouncyCastle.Math;
-
-namespace OpenTl.Common.Auth
+﻿namespace OpenTl.Common.Auth.Server
 {
-    public static class ReqPqHelper
+    using System;
+
+    using OpenTl.Schema;
+    using OpenTl.Schema.Serialization;
+
+    using Org.BouncyCastle.Math;
+
+    public static class Step1ServerHelper
     {
         private static readonly Random Random = new Random();
 
-        public static RequestReqPq Client(out byte[] nonce)
-        {
-            nonce = new byte[16];
-            Random.NextBytes(nonce);
-            
-           return new RequestReqPq {Nonce = nonce};
-        }
-        
-        public static TResPQ Server(byte[] nonce, long publicKeyFingerprint, out BigInteger p, out BigInteger q, out byte[] serverNonce)
+        public static TResPQ GetResponse(byte[] nonce, long publicKeyFingerprint, out BigInteger p, out BigInteger q, out byte[] serverNonce)
         {
             p =  BigInteger.ProbablePrime(28, Random);
             q =  BigInteger.ProbablePrime(28, Random);

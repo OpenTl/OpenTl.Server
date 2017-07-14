@@ -10,7 +10,10 @@ using Xunit;
 
 namespace OpenTl.Common.UnitTests
 {
-    public class ReqDhParamsTest
+    using OpenTl.Common.Auth.Client;
+    using OpenTl.Common.Auth.Server;
+
+    public class AuthTest
     {
         private const string PrivateKey = @"-----BEGIN PRIVATE KEY-----
 MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQD2XnScITdsNnhO
@@ -51,16 +54,42 @@ aCZ/73uabfDwgKxut6KiIqtLXKTt26pLHm/jPayTf4kbubO7Mxga3O8DNMMLIei2
 EQIDAQAB
 -----END PUBLIC KEY-----";
         
+        [Fact]
+        public void Step1Test()
+        {
+            Step1ClientHelper.GetRequest(out var nonce);
+            var publicKeyFingerPrint = 12343211L;
+            var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
+            
+            Assert.Equal(16, resPq.ServerNonce.Length);
+            Assert.NotEmpty(resPq.Pq);
+            Assert.Equal(new List<long> {publicKeyFingerPrint}, resPq.ServerPublicKeyFingerprints.Items);
+        }
+        
         
         [Fact]
-        public void SimpleTest_Not_Throws()
+        public void Step2Test()
         {
-            ReqPqHelper.Client(out var nonce);
+            Step1ClientHelper.GetRequest(out var nonce);
             var publicKeyFingerPrint = 12343211L;
-            var resPq = ReqPqHelper.Server(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
+            var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
 
-            var reqDhParams = ReqDhParamsHelper.Client(resPq, PublicKey);
-            ReqDhParamsHelper.Server(reqDhParams, PrivateKey, out var parameters);
+            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
+            var serverDHParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
+        }
+        
+        
+        [Fact]
+        public void Step3Test()
+        {
+            Step1ClientHelper.GetRequest(out var nonce);
+            var publicKeyFingerPrint = 12343211L;
+            var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
+
+            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
+            var serverDHParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
+            
+            Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDHParams, newNonce );
         }
     }
 }

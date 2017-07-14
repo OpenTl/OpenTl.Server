@@ -53,14 +53,14 @@ EQIDAQAB
             var input = Encoding.UTF8.GetBytes("Perceived determine departure explained no forfeited");
 
             // Encrypt it
-            var encryptedWithPublic = RSAEncryption.RsaEncryptWithPublic(input, PublicKey);
+            var encryptedWithPublic = RSAHelper.RsaEncryptWithPublic(input, PublicKey);
 
-            var encryptedWithPrivate = RSAEncryption.RsaEncryptWithPrivate(input, PrivateKey);
+            var encryptedWithPrivate = RSAHelper.RsaEncryptWithPrivate(input, PrivateKey);
 
             // Decrypt
-            var output1 = RSAEncryption.RsaDecryptWithPrivate(encryptedWithPublic, PrivateKey);
+            var output1 = RSAHelper.RsaDecryptWithPrivate(encryptedWithPublic, PrivateKey);
 
-            var output2 = RSAEncryption.RsaDecryptWithPublic(encryptedWithPrivate, PublicKey);
+            var output2 = RSAHelper.RsaDecryptWithPublic(encryptedWithPrivate, PublicKey);
 
             Assert.Equal(output1, output2);
             Assert.Equal(output2, input);

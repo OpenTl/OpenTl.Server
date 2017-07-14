@@ -15,6 +15,9 @@ using Xunit;
 
 namespace OpenTl.Server.IntegrationTests
 {
+    using OpenTl.Common.Auth.Client;
+    using OpenTl.Common.Auth.Server;
+
     public class SimpleTest
     {
         private const string PublicKey = 
@@ -52,7 +55,7 @@ OQIDAQAB
             var resPq = response.Item1;
             var nonce = response.Item2;
 
-            var reqDhParams = ReqDhParamsHelper.Client(resPq, PublicKey);
+            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
 
             var reqDhParamsData = Serializer.SerializeObjectWithoutBuffer(reqDhParams);
             
@@ -61,7 +64,7 @@ OQIDAQAB
 
         private static async Task<Tuple<TResPQ, byte[]>> GetReqPq(Stream networkStream)
         {
-            var resPq = ReqPqHelper.Client(out var nonce);
+            var resPq = Step1ClientHelper.GetRequest(out var nonce);
 
             var resPqData = Serializer.SerializeObjectWithoutBuffer(resPq);
             

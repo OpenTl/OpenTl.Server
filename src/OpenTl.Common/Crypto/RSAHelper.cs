@@ -8,7 +8,7 @@ namespace OpenTl.Common.Crypto
 {
     using Org.BouncyCastle.Crypto.Parameters;
 
-    public static class RSAEncryption
+    public static class RSAHelper
     {
         public static byte[] RsaEncryptWithPublic(byte[] bytesToEncrypt, string publicKey)
         {
