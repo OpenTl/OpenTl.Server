@@ -22,8 +22,8 @@
 
             var q = pq.Divide(p);
 
-            var pStr = SerializationUtils.GetString(p.ToByteArray());
-            var qStr = SerializationUtils.GetString(q.ToByteArray());
+            var pStr = SerializationUtils.GetStringFromBinary(p.ToByteArray());
+            var qStr = SerializationUtils.GetStringFromBinary(q.ToByteArray());
 
             newNonce = new byte[32];
             Random.NextBytes(newNonce);
