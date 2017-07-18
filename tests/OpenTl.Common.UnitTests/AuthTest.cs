@@ -55,31 +55,6 @@ EQIDAQAB
 -----END PUBLIC KEY-----";
         
         [Fact]
-        public void Step1Test()
-        {
-            Step1ClientHelper.GetRequest(out var nonce);
-            var publicKeyFingerPrint = 12343211L;
-            var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
-            
-            Assert.Equal(16, resPq.ServerNonce.Length);
-            Assert.NotEmpty(resPq.Pq);
-            Assert.Equal(new List<long> {publicKeyFingerPrint}, resPq.ServerPublicKeyFingerprints.Items);
-        }
-        
-        
-        [Fact]
-        public void Step2Test()
-        {
-            Step1ClientHelper.GetRequest(out var nonce);
-            var publicKeyFingerPrint = 12343211L;
-            var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
-
-            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
-            var serverDHParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
-        }
-        
-        
-        [Fact]
         public void Step3Test()
         {
             Step1ClientHelper.GetRequest(out var nonce);
@@ -87,9 +62,9 @@ EQIDAQAB
             var resPq = Step1ServerHelper.GetResponse(nonce, publicKeyFingerPrint, out var p, out var q, out var serverNonce);
 
             var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
-            var serverDHParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
+            var serverDhParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
             
-            Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDHParams, newNonce );
+            Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDhParams, newNonce );
         }
     }
 }

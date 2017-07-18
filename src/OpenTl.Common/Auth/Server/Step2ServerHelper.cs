@@ -14,20 +14,52 @@
     using Org.BouncyCastle.Crypto;
     using Org.BouncyCastle.Crypto.Generators;
     using Org.BouncyCastle.Crypto.Parameters;
+    using Org.BouncyCastle.Math;
     using Org.BouncyCastle.Security;
 
     public static class Step2ServerHelper
     {
         private static readonly Random Random = new Random();
 
+        private static void GeneratePandG(out BigInteger p, out int g)
+        {
+            p = BigInteger.ProbablePrime(2048, Random);
+
+            var mod = new Func<BigInteger, int, int, bool>((a, b, c) => Equals(a.Mod(BigInteger.ValueOf(b)), BigInteger.ValueOf(c)));
+            
+            if (mod(p,8,7))
+            {
+                g = 2;
+            }
+            else if (mod(p, 3, 2))
+            {
+                g = 3;
+            }
+            else if (mod(p, 5, 1) || mod(p, 5, 4))
+            {
+                g = 5;
+            }
+            else if (mod(p, 24, 19) || mod(p, 24, 23))
+            {
+                g = 6;
+            }
+            else if (mod(p, 7, 3) || mod(p, 7, 5) || mod(p, 7, 6))
+            {
+                g = 7;
+            }
+            else
+            {
+                g = 4;
+            }
+        }
+        
         public static IServerDHParams GetResponse(RequestReqDHParams reqDhParams, string privateKey, out AsymmetricCipherKeyPair serverKeyPair)
         {
             var pqInnerData = DeserializeRequest(reqDhParams, privateKey);
 
-            var generator = new DHParametersGenerator();
-            generator.Init(1024, 7, new SecureRandom());
-
-            KeyGenerationParameters kgp = new DHKeyGenerationParameters(new SecureRandom(), generator.GenerateParameters());
+            GeneratePandG(out var p, out var g);
+                
+            KeyGenerationParameters kgp = new DHKeyGenerationParameters(new SecureRandom(), new DHParameters(p, BigInteger.ValueOf(g)));
             var keyGen = GeneratorUtilities.GetKeyPairGenerator("DH");
             keyGen.Init(kgp);
 
