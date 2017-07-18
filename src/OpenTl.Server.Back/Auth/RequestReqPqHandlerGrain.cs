@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using OpenTl.Common.Auth;
+
 using OpenTl.Schema;
 using OpenTl.Server.Back.Cache;
 using OpenTl.Server.Back.Contracts.Auth;

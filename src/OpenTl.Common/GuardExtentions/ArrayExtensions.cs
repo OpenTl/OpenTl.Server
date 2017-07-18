@@ -1,8 +1,8 @@
-﻿using BarsGroup.CodeGuard.Exceptions;
-using BarsGroup.CodeGuard.Internals;
-
-namespace OpenTl.Utils.GuardExtentions
+﻿namespace OpenTl.Common.GuardExtentions
 {
+    using BarsGroup.CodeGuard.Exceptions;
+    using BarsGroup.CodeGuard.Internals;
+
     public static class ArrayExtensions
     {
         public static void IsItemsEquals<T>(this ArgBase<T[]> arg, T[] target)

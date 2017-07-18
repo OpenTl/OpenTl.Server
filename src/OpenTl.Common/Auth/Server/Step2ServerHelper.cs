@@ -7,9 +7,9 @@
     using BarsGroup.CodeGuard;
 
     using OpenTl.Common.Crypto;
+    using OpenTl.Common.GuardExtentions;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
-    using OpenTl.Utils.GuardExtentions;
 
     using Org.BouncyCastle.Crypto;
     using Org.BouncyCastle.Crypto.Generators;
@@ -110,20 +110,11 @@
 
         private static TServerDHParamsOk SerializeResponse(TPQInnerData pqInnerData, TServerDHInnerData dhInnerData)
         {
-            var answer = Serializer.SerializeObjectWithoutBuffer(dhInnerData);
+            var answer = Serializer.SerializeObject(dhInnerData);
 
             var hashsum = SHA1Helper.ComputeHashsum(answer);
 
-            byte[] answerWithHash = null;
-            using (var stream = new MemoryStream(hashsum.Length + answer.Length))
-            using (var writer = new BinaryWriter(stream))
-            {
-                writer.Write(hashsum);
-
-                writer.Write(answer);
-
-                answerWithHash = stream.ToArray();
-            }
+            var answerWithHash = hashsum.Concat(answer).ToArray();
 
             AesHelper.ComputeAESParameters(pqInnerData.NewNonce, pqInnerData.ServerNonce, out var aesKeyData);
 

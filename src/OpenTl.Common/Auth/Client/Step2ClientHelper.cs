@@ -38,7 +38,7 @@
                                   NewNonce = newNonce
                               };
 
-            var innerData = Serializer.SerializeObjectWithoutBuffer(pqInnerData);
+            var innerData = Serializer.SerializeObject(pqInnerData);
 
             var fingerprint = resPq.ServerPublicKeyFingerprints[0];
 

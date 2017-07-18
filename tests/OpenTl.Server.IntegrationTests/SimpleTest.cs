@@ -1,22 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using OpenTl.Common.Auth;
-using OpenTl.Common.Crypto;
+
 using OpenTl.Schema;
 using OpenTl.Schema.Serialization;
-using OpenTl.Utils.Crypto;
-using Org.BouncyCastle.Math;
+
 using Xunit;
 
 namespace OpenTl.Server.IntegrationTests
 {
     using OpenTl.Common.Auth.Client;
-    using OpenTl.Common.Auth.Server;
 
     public class SimpleTest
     {
@@ -57,7 +53,7 @@ OQIDAQAB
 
             var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
 
-            var reqDhParamsData = Serializer.SerializeObjectWithoutBuffer(reqDhParams);
+            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
             
             await networkStream.WriteAsync(reqDhParamsData, 0, reqDhParamsData.Length);
         }
@@ -66,7 +62,7 @@ OQIDAQAB
         {
             var resPq = Step1ClientHelper.GetRequest(out var nonce);
 
-            var resPqData = Serializer.SerializeObjectWithoutBuffer(resPq);
+            var resPqData = Serializer.SerializeObject(resPq);
             
             await networkStream.WriteAsync(resPqData, 0, resPqData.Length);
 

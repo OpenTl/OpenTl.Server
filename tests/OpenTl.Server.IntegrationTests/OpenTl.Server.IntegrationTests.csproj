@@ -14,7 +14,6 @@
       <Name>OpenTl.Schema</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\OpenTl.Common\OpenTl.Common.csproj" />
-    <ProjectReference Include="..\..\src\OpenTl.Utils\OpenTl.Utils.csproj">
       <Project>{93ae4bf8-d497-4d5e-a737-ea5c2fd39bf3}</Project>
       <Name>OpenTl.Utils</Name>
     </ProjectReference>

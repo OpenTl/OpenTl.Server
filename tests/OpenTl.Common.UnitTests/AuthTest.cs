@@ -13,6 +13,9 @@ namespace OpenTl.Common.UnitTests
     using OpenTl.Common.Auth.Client;
     using OpenTl.Common.Auth.Server;
 
+    using Org.BouncyCastle.Crypto.Parameters;
+    using Org.BouncyCastle.Security;
+
     public class AuthTest
     {
         private const string PrivateKey = @"-----BEGIN PRIVATE KEY-----
@@ -64,7 +67,15 @@ EQIDAQAB
             var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
             var serverDhParams = Step2ServerHelper.GetResponse(reqDhParams, PrivateKey, out var parameters);
             
-            Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDhParams, newNonce );
+            var setClientDhParams =  Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDhParams, newNonce, out var clientKeyPair, out var serverPublicKey );
+            
+            Step3ServerHelper.GetResponse(setClientDhParams, newNonce, parameters, out var serverAgree);
+            
+            var clientKeyAgree = AgreementUtilities.GetBasicAgreement("DH");
+            clientKeyAgree.Init(clientKeyPair.Private);
+            var clientAgree = clientKeyAgree.CalculateAgreement(serverPublicKey);
+            
+            Assert.Equal(serverAgree, clientAgree);
         }
     }
 }
