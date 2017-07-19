@@ -58,7 +58,7 @@ EQIDAQAB
 -----END PUBLIC KEY-----";
         
         [Fact]
-        public void Step3Test()
+        public void SimpleTest()
         {
             Step1ClientHelper.GetRequest(out var nonce);
             var publicKeyFingerPrint = 12343211L;
@@ -69,7 +69,7 @@ EQIDAQAB
             
             var setClientDhParams =  Step3ClientHelper.GetRequest((TServerDHParamsOk)serverDhParams, newNonce, out var clientKeyPair, out var serverPublicKey );
             
-            Step3ServerHelper.GetResponse(setClientDhParams, newNonce, parameters, out var serverAgree);
+            var setClientDhParamsAnswer = Step3ServerHelper.GetResponse(setClientDhParams, newNonce, parameters, out var serverAgree, out var serverSalt);
             
             var clientKeyAgree = AgreementUtilities.GetBasicAgreement("DH");
             clientKeyAgree.Init(clientKeyPair.Private);

@@ -1,5 +1,6 @@
 ﻿namespace OpenTl.Common.Auth.Server
 {
+    using System.Collections;
     using System.Linq;
 
     using BarsGroup.CodeGuard;
@@ -15,10 +16,12 @@
     using Org.BouncyCastle.Security;
     
     using MoreLinq;
-    
+
+    using OpenTl.Common.Extesions;
+
     public static class Step3ServerHelper
     {
-        public static ISetClientDHParamsAnswer GetResponse(RequestSetClientDHParams setClientDhParams, byte[] newNonce, AsymmetricCipherKeyPair serverKeyPair, out BigInteger serverAgree)
+        public static ISetClientDHParamsAnswer GetResponse(RequestSetClientDHParams setClientDhParams, byte[] newNonce, AsymmetricCipherKeyPair serverKeyPair, out BigInteger serverAgree, out byte[] serverSalt)
         {
             AesHelper.ComputeAESParameters(newNonce, setClientDhParams.ServerNonce, out var aesKeyData);
             
@@ -33,6 +36,8 @@
 
             serverAgree = serverKeyAgree.CalculateAgreement(clientPublicKey);
 
+            serverSalt = new BitArray(newNonce.Take(8).ToArray()).Xor(new BitArray(setClientDhParams.ServerNonce.Take(8).ToArray())).ToByteArray();
+            
             return SerializeResponse(setClientDhParams, newNonce, serverAgree);
         }
 
