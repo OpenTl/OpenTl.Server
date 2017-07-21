@@ -6,8 +6,6 @@
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build">
       <Version>1.4.2</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj" />
+    <PackageReference Include="OpenTl.Schema" Version="0.68.11" />
   </ItemGroup>
 </Project>

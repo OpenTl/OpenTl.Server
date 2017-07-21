@@ -6,13 +6,8 @@
     <PackageReference Include="BarsGroup.CodeGuard" Version="3.2.43" />
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.1.3" />
     <PackageReference Include="morelinq" Version="2.6.0" />
+    <PackageReference Include="OpenTl.Schema" Version="0.68.11" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj">
-      <Project>{05E7ECB2-C396-4954-A6D4-E93751F1E015}</Project>
-      <Name>OpenTl.Schema</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

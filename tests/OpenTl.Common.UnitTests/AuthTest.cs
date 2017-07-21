@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTl.Common.Auth;
 using OpenTl.Schema;
-using OpenTl.Schema.Serialization;
+
 using Xunit;
 
 namespace OpenTl.Common.UnitTests
@@ -13,7 +7,6 @@ namespace OpenTl.Common.UnitTests
     using OpenTl.Common.Auth.Client;
     using OpenTl.Common.Auth.Server;
 
-    using Org.BouncyCastle.Crypto.Parameters;
     using Org.BouncyCastle.Security;
 
     public class AuthTest

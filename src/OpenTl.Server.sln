@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Server.Back.Contract
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Server.Back", "OpenTl.Server.Back\OpenTl.Server.Back.csproj", "{7E001E3D-4186-4565-9A42-A88F4149689A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTl.Schema", "..\..\OpenTl.Schema\src\OpenTl.Schema\OpenTl.Schema.csproj", "{05E7ECB2-C396-4954-A6D4-E93751F1E015}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTl.Common", "OpenTl.Common\OpenTl.Common.csproj", "{8FE07F27-5927-4638-83B8-1C1C2DF1CE94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTl.Common.UnitTests", "..\tests\OpenTl.Common.UnitTests\OpenTl.Common.UnitTests.csproj", "{6C44018F-81CB-4152-AE4E-1D807261C609}"
@@ -49,10 +47,6 @@ Global
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E001E3D-4186-4565-9A42-A88F4149689A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05E7ECB2-C396-4954-A6D4-E93751F1E015}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8FE07F27-5927-4638-83B8-1C1C2DF1CE94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8FE07F27-5927-4638-83B8-1C1C2DF1CE94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FE07F27-5927-4638-83B8-1C1C2DF1CE94}.Release|Any CPU.ActiveCfg = Release|Any CPU
