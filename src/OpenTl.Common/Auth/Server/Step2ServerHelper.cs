@@ -1,18 +1,16 @@
 ﻿namespace OpenTl.Common.Auth.Server
 {
     using System;
-    using System.IO;
     using System.Linq;
 
     using BarsGroup.CodeGuard;
 
     using OpenTl.Common.Crypto;
-    using OpenTl.Common.GuardExtentions;
+    using OpenTl.Common.GuardExtensions;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
 
     using Org.BouncyCastle.Crypto;
-    using Org.BouncyCastle.Crypto.Generators;
     using Org.BouncyCastle.Crypto.Parameters;
     using Org.BouncyCastle.Math;
     using Org.BouncyCastle.Security;
@@ -51,9 +49,11 @@
             {
                 g = 4;
             }
+            
+            Guard.That(BigInteger.ValueOf(g)).IsValidDhGParameter(p);
         }
         
-        public static IServerDHParams GetResponse(RequestReqDHParams reqDhParams, string privateKey, out AsymmetricCipherKeyPair serverKeyPair)
+        public static IServerDHParams GetResponse(RequestReqDHParams reqDhParams, string privateKey, out AsymmetricCipherKeyPair serverKeyPair, out byte[] newNonce)
         {
             var pqInnerData = DeserializeRequest(reqDhParams, privateKey);
 
@@ -77,6 +77,8 @@
                                   ServerTime = (int)((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
                               };
 
+            newNonce = pqInnerData.NewNonce;
+            
             return SerializeResponse(pqInnerData, dhInnerData);
         }
 

@@ -5,13 +5,11 @@
     using BarsGroup.CodeGuard;
 
     using OpenTl.Common.Crypto;
-    using OpenTl.Common.GuardExtentions;
+    using OpenTl.Common.GuardExtensions;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
 
-    using Org.BouncyCastle.Asn1.X9;
     using Org.BouncyCastle.Crypto;
-    using Org.BouncyCastle.Crypto.Generators;
     using Org.BouncyCastle.Crypto.Parameters;
     using Org.BouncyCastle.Math;
     using Org.BouncyCastle.Security;
@@ -26,8 +24,10 @@
                 
             var p = new BigInteger(SerializationUtils.GetBinaryFromString(dhInnerData.DhPrime));  
             var g = BigInteger.ValueOf(dhInnerData.G);
+            Guard.That(g).IsValidDhGParameter(p);
 
-            KeyGenerationParameters kgp = new DHKeyGenerationParameters(new SecureRandom(), new DHParameters(p, g));
+            var dhParameters = new DHParameters(p, g);
+            KeyGenerationParameters kgp = new DHKeyGenerationParameters(new SecureRandom(), dhParameters);
             var keyGen = GeneratorUtilities.GetKeyPairGenerator("DH");
             keyGen.Init(kgp);
 
@@ -36,7 +36,9 @@
             var publicKey = ((DHPublicKeyParameters)clientKeyPair.Public);
 
             var y = new BigInteger(SerializationUtils.GetBinaryFromString(dhInnerData.GA));
-            serverPublicKey = new DHPublicKeyParameters(y, ((DHPrivateKeyParameters)clientKeyPair.Private).Parameters);
+            Guard.That(y).IsValidDhPublicKey(dhParameters.P);
+            
+            serverPublicKey = new DHPublicKeyParameters(y, dhParameters);
 
             var clientDhInnerData = new TClientDHInnerData
                                     {

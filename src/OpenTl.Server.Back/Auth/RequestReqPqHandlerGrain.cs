@@ -16,7 +16,7 @@ namespace OpenTl.Server.Back.Auth
         {
             var cache = AuthCache.NewAuthCache(clientId);
 
-            var respq = Step1ServerHelper.GetResponse(obj.Nonce, RsaHelper.PublicKeyFingerprint, out var p, out var q, out var serverNonce);
+            var respq = Step1ServerHelper.GetResponse(obj.Nonce, RsaKeyHelper.PublicKeyFingerprint, out var p, out var q, out var serverNonce);
             
             cache.ServerNonce = serverNonce;
             cache.P = p;

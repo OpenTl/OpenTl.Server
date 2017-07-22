@@ -6,6 +6,6 @@ namespace OpenTl.Server.Back.Contracts
 {
     public interface IObjectHandler : Orleans.IGrainWithIntegerKey
     {
-        Task<IObject> Handle(Guid clientId, IObject obj);
+        Task<byte[]> Handle(Guid clientId, byte[] package);    
     }
 }

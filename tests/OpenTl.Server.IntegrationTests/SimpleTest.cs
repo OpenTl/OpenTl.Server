@@ -13,65 +13,111 @@ using Xunit;
 namespace OpenTl.Server.IntegrationTests
 {
     using OpenTl.Common.Auth.Client;
+    using OpenTl.Common.Crypto;
+
+    using Org.BouncyCastle.Crypto;
+    using Org.BouncyCastle.Crypto.Parameters;
 
     public class SimpleTest
     {
         private const string PublicKey = 
 @"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8k1LTajz2N9RMjDnv1Jq
-LUmE+MZWCOTMC0FqjZmjNWm9zhgy7Rv12nUz3I2rLiKEZp/O42ThfTtDgRVrFkkE
-ALl0YWrWwt5QQq5k51POngCt9n6bLi2Q82HYMotvIhN6w15B692Urbu6RtDRnfdb
-ojRDWGh/DNElRIuy+T1bWCIISCTX47PrXJs4I1WPw/xYDl9zA9xhEMIQx6NwoRlj
-XBdWrYayFbllXqV3EPhhIpuQ6cqNsudbLGCFdsaRuNuTJzo43hf549xrumH0I/4K
-1FLCbxCWz3gnWLaxoN+RtSJvXvyEfMFRdsWSW/mMr3WFwb8nakabgQ1YbtT5576M
-OQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Kh5FpK5KxFNFUSQ8yWK
+GzBW4OJX+ju3S2zX179uJFqisgaC256UgI4UsUfZhR38zi6g4AZqlOUOZcLNwp3r
+6zK0ujxmZNu1M3LQLcS1D4aoWHZRHnEz0wuZqhOnIOXA31ATB8kCqiIu0FbKrZ/5
+HnPfdDFXt6bfv3+vgyyJwI/G8umiLHo0DSBuXnxo4v6/9hEQcj8acZ26sNj3u9N8
+M1WncvMct9os0FJWKaeJ0BUatxHrZC/xsaW5nS9f6Pjw9TfMwuU9qnEZye4Gmgu8
+6lv1fbUcg0zl0S4FQpDnf0aKOaU2+DiNxM6DqCBJs7Fz9OZ+LB7bw+5006/defll
+cQIDAQAB
 -----END PUBLIC KEY-----";
 
         [Fact]
-        public async Task RequestReqPqTest()
+        public async Task Step1Test()
         {
             var networkStream = await GetServerStream();
 
-            var response = await GetReqPq(networkStream);
-            var resPq = response.Item1;
-            var nonce = response.Item2;
+            var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
+
+            var resPq = GetReqPq(networkStream, requestReqPq);
             
             Assert.Equal(nonce, resPq.Nonce);
             Assert.Equal(16, resPq.ServerNonce.Length);
             Assert.NotEmpty(resPq.Pq);
-            Assert.Equal(new List<long> {1507157865616355199}, resPq.ServerPublicKeyFingerprints.Items);
+            Assert.Equal(new List<long> {RSAHelper.GetFingerprint(PublicKey)}, resPq.ServerPublicKeyFingerprints.Items);
         }
         
         [Fact]
-        public async Task RequestReqDhExchangeTest()
+        public async Task Step2Test()
         {
             var networkStream = await GetServerStream();
 
-            var response = await GetReqPq(networkStream);
-            var resPq = response.Item1;
-            var nonce = response.Item2;
-
-            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
-
-            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
+            var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             
-            await networkStream.WriteAsync(reqDhParamsData, 0, reqDhParamsData.Length);
+            var resPq = GetReqPq(networkStream, requestReqPq);
+
+            var response =  RequestReqDhParams(resPq, networkStream, out var newNonce);
+
+            Step3ClientHelper.GetRequest(response, newNonce, out var clientKeyPair, out var serverPublicKey);
+            
+        }
+        
+        [Fact]
+        public async Task Step3Test()
+        {
+            var networkStream = await GetServerStream();
+
+            var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
+            
+            var resPq = GetReqPq(networkStream, requestReqPq);
+
+            var serverDhParams =  RequestReqDhParams(resPq, networkStream, out var newNonce);
+
+            var response = RequestSetClientDhParams(networkStream, serverDhParams, newNonce, out var clientKeyPair, out var serverPublicKey);
         }
 
-        private static async Task<Tuple<TResPQ, byte[]>> GetReqPq(Stream networkStream)
+        private static TDhGenOk RequestSetClientDhParams(Stream networkStream, TServerDHParamsOk serverDhParams, byte[] newNonce, out AsymmetricCipherKeyPair clientKeyPair, out DHPublicKeyParameters serverPublicKey)
         {
-            var resPq = Step1ClientHelper.GetRequest(out var nonce);
+            var reqDhParams = Step3ClientHelper.GetRequest(serverDhParams, newNonce, out var keyPair, out var publicKey);
+            clientKeyPair = keyPair;
+            serverPublicKey = publicKey;
 
+            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
+
+            networkStream.Write(reqDhParamsData, 0, reqDhParamsData.Length);
+            
+            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
+            {
+                return (TDhGenOk) Serializer.DeserializeObject(streamReader);
+            }
+        }
+         
+        private static TServerDHParamsOk  RequestReqDhParams(TResPQ resPq, Stream networkStream, out byte[] clientNonce)
+        {
+            var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
+            clientNonce = newNonce;
+
+            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
+
+            networkStream.Write(reqDhParamsData, 0, reqDhParamsData.Length);
+            
+            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
+            {
+                return (TServerDHParamsOk) Serializer.DeserializeObject(streamReader);
+            }
+        }
+        
+        private static TResPQ GetReqPq(Stream networkStream, RequestReqPq resPq)
+        {
             var resPqData = Serializer.SerializeObject(resPq);
             
-            await networkStream.WriteAsync(resPqData, 0, resPqData.Length);
+            networkStream.Write(resPqData, 0, resPqData.Length);
 
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                return Tuple.Create((TResPQ)Serializer.DeserializeObject(streamReader), nonce);
+                return (TResPQ)Serializer.DeserializeObject(streamReader);
             }
         }
-
+       
         private static async Task<NetworkStream> GetServerStream()
         {
             var client = new TcpClient();

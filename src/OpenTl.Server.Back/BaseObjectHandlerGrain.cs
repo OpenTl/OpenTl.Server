@@ -6,11 +6,17 @@ using Orleans;
 
 namespace OpenTl.Server.Back
 {
+    using OpenTl.Schema.Serialization;
+
     public abstract class BaseObjectHandlerGrain<TInput, TOut>: Grain, IObjectHandler where TInput: IObject where TOut: IObject
     {
-        public async Task<IObject> Handle(Guid clientId, IObject obj)
+        public async Task<byte[]> Handle(Guid clientId, byte[] package)
         {
-            return await HandleProtected(clientId, (TInput) obj);
+            var request = Serializer.DeserializeObject(package);
+
+            var response = await HandleProtected(clientId, (TInput) request);
+
+            return Serializer.SerializeObject(response);
         }
 
         protected abstract Task<TOut> HandleProtected(Guid clientId, TInput obj);

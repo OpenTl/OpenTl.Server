@@ -4,6 +4,8 @@ using Org.BouncyCastle.Math;
 
 namespace OpenTl.Server.Back.Cache
 {
+    using Org.BouncyCastle.Crypto;
+
     public class AuthCache
     {
         private static readonly MemoryCache Cache  = new MemoryCache("auth");
@@ -12,9 +14,17 @@ namespace OpenTl.Server.Back.Cache
         
         public byte[] ServerNonce { get; set; }
         
+        public byte[] NewNonse { get; set; }
+        
         public BigInteger P { get; set; }
         
         public BigInteger Q { get; set; }
+
+        public AsymmetricCipherKeyPair KeyPair { get; set; }
+
+        public BigInteger ServerAgree { get; set; }
+        
+        public byte[] ServerSalt { get; set; }
         
         private AuthCache()
         {

@@ -6,7 +6,6 @@
     using BarsGroup.CodeGuard;
 
     using OpenTl.Common.Crypto;
-    using OpenTl.Common.GuardExtentions;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
 
@@ -18,6 +17,7 @@
     using MoreLinq;
 
     using OpenTl.Common.Extesions;
+    using OpenTl.Common.GuardExtensions;
 
     public static class Step3ServerHelper
     {
@@ -27,9 +27,12 @@
             
             var dhInnerData = DeserializeRequest(setClientDhParams, aesKeyData);
 
+            var dhParameters = ((DHPrivateKeyParameters)serverKeyPair.Private).Parameters;
+            
             var y = new BigInteger(SerializationUtils.GetBinaryFromString(dhInnerData.GB));
+            Guard.That(y).IsValidDhPublicKey(dhParameters.P);
 
-            var clientPublicKey = new DHPublicKeyParameters(y, ((DHPrivateKeyParameters)serverKeyPair.Private).Parameters);
+            var clientPublicKey = new DHPublicKeyParameters(y, dhParameters);
                 
             var serverKeyAgree = AgreementUtilities.GetBasicAgreement("DH");
             serverKeyAgree.Init(serverKeyPair.Private);

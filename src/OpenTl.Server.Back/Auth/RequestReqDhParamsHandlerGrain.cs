@@ -18,10 +18,13 @@ namespace OpenTl.Server.Back.Auth
             var cache = AuthCache.GetCache(clientId);
 
             cache.Nonce = obj.Nonce;
-                
-            Step2ServerHelper.GetResponse(obj, RsaHelper.PrivateKey, out var parameters);
+            
+            var response = Step2ServerHelper.GetResponse(obj, RsaKeyHelper.PrivateKey, out var keyPair, out var newNonce);
 
-            return null;
+            cache.NewNonse = newNonce;
+            cache.KeyPair = keyPair;
+            
+            return Task.FromResult(response);
         }
     }
 }

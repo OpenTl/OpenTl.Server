@@ -9,25 +9,28 @@ using Orleans;
 
 namespace OpenTl.Server.Back
 {
+    using System.Linq;
+
     public class PackageRouterGrain : Grain, IPackageRouterGrain
     {
-        private readonly Dictionary<Type, IObjectHandler> _handlers = new Dictionary<Type, IObjectHandler>();
+        private readonly Dictionary<uint, IObjectHandler> _handlers = new Dictionary<uint, IObjectHandler>();
 
         public override Task OnActivateAsync()
         {
-            _handlers[typeof(RequestReqPq)] = GrainFactory.GetGrain<IRequestReqPqHandler>(0);
-            _handlers[typeof(RequestReqDHParams)] = GrainFactory.GetGrain<IRequestReqDhParamsHandler>(0);
+            _handlers[1615239032] = GrainFactory.GetGrain<IRequestReqPqHandler>(0);
+            _handlers[3608339646] = GrainFactory.GetGrain<IRequestReqDhParamsHandler>(0);
+            _handlers[4110704415] = GrainFactory.GetGrain<IRequestSetClientDhParamsHandler>(0);
 
             return base.OnActivateAsync();
         }
 
         public async Task<byte[]> Handle(Guid clientId, byte[] package)
         {
-            var obj = Serializer.DeserializeObject(package);
+            var objectId = BitConverter.ToUInt32(package, 0);
 
-            var responce = await _handlers[obj.GetType()].Handle(clientId, obj);
+            var responce = await _handlers[objectId].Handle(clientId, package);
 
-            return Serializer.SerializeObjectWithBuffer(responce);
+            return responce;
         }
     }
 }

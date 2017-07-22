@@ -6,6 +6,10 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace OpenTl.Common.Crypto
 {
+    using System;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+
     using Org.BouncyCastle.Crypto.Parameters;
 
     public static class RSAHelper
@@ -16,7 +20,7 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(publicKey))
             {
-                var keyParameter = (RsaKeyParameters) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaKeyParameters)new PemReader(txtreader).ReadObject();
 
                 encryptEngine.Init(true, keyParameter);
             }
@@ -30,10 +34,11 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(privateKey))
             {
-                var keyParameter = (RsaPrivateCrtKeyParameters) new PemReader(txtreader).ReadObject();
+                var keyParameter = (AsymmetricCipherKeyPair)new PemReader(txtreader).ReadObject();
 
-                encryptEngine.Init(true, keyParameter);
+                encryptEngine.Init(true, keyParameter.Private);
             }
+
 
             return encryptEngine.ProcessBlock(bytesToEncrypt, 0, bytesToEncrypt.Length);
         }
@@ -47,9 +52,9 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(privateKey))
             {
-                var keyParameter = (RsaPrivateCrtKeyParameters) new PemReader(txtreader).ReadObject();
+                var keyParameter = (AsymmetricCipherKeyPair)new PemReader(txtreader).ReadObject();
 
-                decryptEngine.Init(false, keyParameter);
+                decryptEngine.Init(false, keyParameter.Private);
             }
 
             return decryptEngine.ProcessBlock(bytesToDecrypt, 0, bytesToDecrypt.Length);
@@ -61,12 +66,25 @@ namespace OpenTl.Common.Crypto
 
             using (var txtreader = new StringReader(publicKey))
             {
-                var keyParameter = (RsaKeyParameters) new PemReader(txtreader).ReadObject();
+                var keyParameter = (RsaKeyParameters)new PemReader(txtreader).ReadObject();
 
                 decryptEngine.Init(false, keyParameter);
             }
 
             return decryptEngine.ProcessBlock(bytesToDecrypt, 0, bytesToDecrypt.Length);
+        }
+
+        public static long GetFingerprint(string key)
+        {
+            using (var sha1 = SHA1.Create())
+            using (var txtreader = new StringReader(key))
+            {
+                var pemObject = new PemReader(txtreader).ReadPemObject();
+                
+                var hash = sha1.ComputeHash(pemObject.Content);
+
+                return BitConverter.ToInt64(hash, hash.Length - 8);
+            }
         }
     }
 }

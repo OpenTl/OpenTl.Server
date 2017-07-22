@@ -1,4 +1,4 @@
-﻿namespace OpenTl.Common.GuardExtentions
+﻿namespace OpenTl.Common.GuardExtensions
 {
     using BarsGroup.CodeGuard.Exceptions;
     using BarsGroup.CodeGuard.Internals;
