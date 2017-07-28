@@ -3,6 +3,8 @@
     using System.IO;
     using System.Text;
 
+    using OpenTl.Common.Crypto;
+
     public static class NetworkHelper
     {
         public static byte[] EncodeMessage(byte[] bytes, int seqNumber)
@@ -13,7 +15,9 @@
                 writer.Write(bytes.Length + 12);
                 writer.Write(seqNumber);
                 writer.Write(bytes);
-                writer.Write(0);
+
+                var checksum = Crc32.Compute(stream.ToArray());
+                writer.Write(checksum);
 
                 return stream.ToArray();
             }
@@ -26,6 +30,7 @@
                 var length = reader.ReadInt32();
                 seqNum = reader.ReadInt32();
                 var body = reader.ReadBytes(length - 12);
+                
                 checksum = reader.ReadInt32();
 
                 return body;

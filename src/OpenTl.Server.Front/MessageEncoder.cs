@@ -4,6 +4,8 @@
     using DotNetty.Codecs;
     using DotNetty.Transport.Channels;
 
+    using OpenTl.Common.Crypto;
+
     public class MessageEncoder: MessageToByteEncoder<byte[]>
     {
         protected override void Encode(IChannelHandlerContext context, byte[] message, IByteBuffer output)
@@ -13,7 +15,9 @@
             buffer.WriteInt(message.Length + 12);
             buffer.WriteInt(0);
             buffer.WriteBytes(message);
-            buffer.WriteInt(0);
+
+            var checksum = Crc32.Compute(buffer.Array);
+            buffer.WriteUnsignedInt(checksum);
         }
     }
 }
