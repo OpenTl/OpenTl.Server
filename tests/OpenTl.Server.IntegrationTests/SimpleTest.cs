@@ -38,7 +38,7 @@ cQIDAQAB
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
 
-            var resPq = GetReqPq(networkStream, requestReqPq);
+            var resPq = GetStep1Response(networkStream, requestReqPq);
             
             Assert.Equal(nonce, resPq.Nonce);
             Assert.Equal(16, resPq.ServerNonce.Length);
@@ -53,9 +53,9 @@ cQIDAQAB
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             
-            var resPq = GetReqPq(networkStream, requestReqPq);
+            var resPq = GetStep1Response(networkStream, requestReqPq);
 
-            var response =  RequestReqDhParams(resPq, networkStream, out var newNonce);
+            var response =  GetStep2Response(resPq, networkStream, out var newNonce);
 
             Step3ClientHelper.GetRequest(response, newNonce, out var clientKeyPair, out var serverPublicKey);
             
@@ -68,18 +68,18 @@ cQIDAQAB
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             
-            var resPq = GetReqPq(networkStream, requestReqPq);
+            var resPq = GetStep1Response(networkStream, requestReqPq);
 
-            var serverDhParams =  RequestReqDhParams(resPq, networkStream, out var newNonce);
+            var serverDhParams =  GetStep2Response(resPq, networkStream, out var newNonce);
 
-            var response = RequestSetClientDhParams(networkStream, serverDhParams, newNonce, out var clientKeyPair, out var serverPublicKey);
+            var response = GetStep3Response(networkStream, serverDhParams, newNonce, out var clientKeyPair, out var serverPublicKey);
         }
 
-        private static TDhGenOk RequestSetClientDhParams(Stream networkStream, TServerDHParamsOk serverDhParams, byte[] newNonce, out AsymmetricCipherKeyPair clientKeyPair, out DHPublicKeyParameters serverPublicKey)
+        private static TDhGenOk GetStep3Response(Stream networkStream, TServerDHParamsOk serverDhParams, byte[] newNonce, out byte[] clientAgree, out int serverTime)
         {
-            var reqDhParams = Step3ClientHelper.GetRequest(serverDhParams, newNonce, out var keyPair, out var publicKey);
-            clientKeyPair = keyPair;
-            serverPublicKey = publicKey;
+            var reqDhParams = Step3ClientHelper.GetRequest(serverDhParams, newNonce, out var agree, out var time);
+            clientAgree = agree;
+            serverTime = time;
 
             var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
 
@@ -91,7 +91,7 @@ cQIDAQAB
             }
         }
          
-        private static TServerDHParamsOk  RequestReqDhParams(TResPQ resPq, Stream networkStream, out byte[] clientNonce)
+        private static TServerDHParamsOk  GetStep2Response(TResPQ resPq, Stream networkStream, out byte[] clientNonce)
         {
             var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
             clientNonce = newNonce;
@@ -106,7 +106,7 @@ cQIDAQAB
             }
         }
         
-        private static TResPQ GetReqPq(Stream networkStream, RequestReqPq resPq)
+        private static TResPQ GetStep1Response(Stream networkStream, RequestReqPq resPq)
         {
             var resPqData = Serializer.SerializeObject(resPq);
             

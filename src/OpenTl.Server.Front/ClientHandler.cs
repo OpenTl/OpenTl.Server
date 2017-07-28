@@ -20,13 +20,17 @@ namespace OpenTl.Server.Front
             
             base.ChannelActive(context);
         }
-
+        
         public override void ChannelRead(IChannelHandlerContext ctx, object msg)
         {
+            base.ChannelRead(ctx, msg);
+
             var buffer = (IByteBuffer) msg;
+            
             var data = new byte[buffer.ReadableBytes];
 
             buffer.GetBytes(buffer.ReaderIndex, data);
+            
 
             Task.Run(async () =>
             {
@@ -37,7 +41,6 @@ namespace OpenTl.Server.Front
 
             });
 
-            base.ChannelRead(ctx, msg);
         }
 
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using OpenTl.Schema;
 
 namespace OpenTl.Server.Back.Contracts
 {

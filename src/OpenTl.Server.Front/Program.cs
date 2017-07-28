@@ -11,6 +11,8 @@ using Orleans.Runtime.Configuration;
 
 namespace OpenTl.Server.Front
 {
+    using DotNetty.Buffers;
+
     class Program
     {
         private static void Main()
@@ -34,6 +36,7 @@ namespace OpenTl.Server.Front
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
                         var pipeline = channel.Pipeline;
+                        
                         pipeline.AddLast(new ClientHandler());
                     }));
 

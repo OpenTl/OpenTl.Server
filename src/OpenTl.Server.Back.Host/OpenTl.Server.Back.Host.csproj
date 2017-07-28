@@ -4,12 +4,10 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Server">
-      <Version>1.4.2</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\OpenTl.Server.Back.Contracts\OpenTl.Server.Back.Contracts.csproj" />
     <ProjectReference Include="..\OpenTl.Server.Back\OpenTl.Server.Back.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Server" Version="1.5.0" />
   </ItemGroup>
 </Project>

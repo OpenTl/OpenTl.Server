@@ -9,9 +9,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenTl.Common\OpenTl.Common.csproj" >
-      <Project>{93ae4bf8-d497-4d5e-a737-ea5c2fd39bf3}</Project>
-      <Name>OpenTl.Utils</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\OpenTl.Common\src\OpenTl.Common\OpenTl.Common.csproj" />
   </ItemGroup>
 </Project>
