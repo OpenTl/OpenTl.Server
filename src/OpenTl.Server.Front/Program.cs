@@ -12,6 +12,7 @@ using Orleans.Runtime.Configuration;
 namespace OpenTl.Server.Front
 {
     using DotNetty.Buffers;
+    using DotNetty.Codecs;
 
     class Program
     {
@@ -37,7 +38,10 @@ namespace OpenTl.Server.Front
                     {
                         var pipeline = channel.Pipeline;
                         
-                        pipeline.AddLast(new ClientHandler());
+                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(ByteOrder.LittleEndian, int.MaxValue, 0, 4, -4, 0, true));
+                        pipeline.AddLast(new MessageDecoder());
+                        pipeline.AddLast(new MessageEncoder());
+                        pipeline.AddLast(new MessageHandler());
                     }));
 
                 var boundChannel = await bootstrap.BindAsync(433);

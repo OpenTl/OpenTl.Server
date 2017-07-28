@@ -20,6 +20,8 @@ namespace OpenTl.Server.IntegrationTests
 
     public class SimpleTest
     {
+        private static int _mesSeqNumber = 0;
+        
         private const string PublicKey = 
 @"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Kh5FpK5KxFNFUSQ8yWK
@@ -82,12 +84,14 @@ cQIDAQAB
             serverTime = time;
 
             var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
+            var reqMessage = NetworkHelper.EncodeMessage(reqDhParamsData, _mesSeqNumber);
 
-            networkStream.Write(reqDhParamsData, 0, reqDhParamsData.Length);
+            networkStream.Write(reqMessage, 0, reqMessage.Length);
             
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                return (TDhGenOk) Serializer.DeserializeObject(streamReader);
+                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
+                return (TDhGenOk) Serializer.DeserializeObject(resMessage);
             }
         }
          
@@ -97,24 +101,30 @@ cQIDAQAB
             clientNonce = newNonce;
 
             var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
+            var reqMessage = NetworkHelper.EncodeMessage(reqDhParamsData, _mesSeqNumber);
 
-            networkStream.Write(reqDhParamsData, 0, reqDhParamsData.Length);
+            networkStream.Write(reqMessage, 0, reqMessage.Length);
             
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                return (TServerDHParamsOk) Serializer.DeserializeObject(streamReader);
+                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
+                return (TServerDHParamsOk) Serializer.DeserializeObject(resMessage);
             }
         }
         
         private static TResPQ GetStep1Response(Stream networkStream, RequestReqPq resPq)
         {
             var resPqData = Serializer.SerializeObject(resPq);
+
+            var reqMessage = NetworkHelper.EncodeMessage(resPqData, _mesSeqNumber);
+            _mesSeqNumber++;
             
-            networkStream.Write(resPqData, 0, resPqData.Length);
+            networkStream.Write(reqMessage, 0, reqMessage.Length);
 
             using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
             {
-                return (TResPQ)Serializer.DeserializeObject(streamReader);
+                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
+                return (TResPQ)Serializer.DeserializeObject(resMessage);
             }
         }
        

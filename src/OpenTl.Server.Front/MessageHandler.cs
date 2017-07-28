@@ -8,7 +8,7 @@ using Orleans.Runtime;
 
 namespace OpenTl.Server.Front
 {
-    public class ClientHandler: ChannelHandlerAdapter
+    public class MessageHandler: ChannelHandlerAdapter
     {
         private readonly IPackageRouterGrain _router = GrainClient.GrainFactory.GetGrain<IPackageRouterGrain>(0);
 
@@ -20,28 +20,15 @@ namespace OpenTl.Server.Front
             
             base.ChannelActive(context);
         }
-        
+         
         public override void ChannelRead(IChannelHandlerContext ctx, object msg)
         {
-            base.ChannelRead(ctx, msg);
-
-            var buffer = (IByteBuffer) msg;
-            
-            var data = new byte[buffer.ReadableBytes];
-
-            buffer.GetBytes(buffer.ReaderIndex, data);
-            
-
             Task.Run(async () =>
             {
-                var resultData = await _router.Handle(_clientId, data);
+                var resultData = await _router.Handle(_clientId, (byte[]) msg);
 
-                var resultBuffer = Unpooled.WrappedBuffer(resultData);
-                await ctx.WriteAndFlushAsync(resultBuffer);
-
+                await ctx.WriteAndFlushAsync(resultData);
             });
-
         }
-
     }
 }
