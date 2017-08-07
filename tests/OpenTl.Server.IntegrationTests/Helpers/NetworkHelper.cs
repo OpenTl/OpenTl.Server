@@ -1,4 +1,4 @@
-﻿namespace OpenTl.Server.IntegrationTests
+﻿namespace OpenTl.Server.IntegrationTests.Helpers
 {
     using System.IO;
     using System.Text;
