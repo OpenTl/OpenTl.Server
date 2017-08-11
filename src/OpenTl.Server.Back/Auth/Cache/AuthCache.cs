@@ -22,10 +22,6 @@ namespace OpenTl.Server.Back.Cache
 
         public AsymmetricCipherKeyPair KeyPair { get; set; }
 
-        public BigInteger ServerAgree { get; set; }
-        
-        public byte[] ServerSalt { get; set; }
-        
         private AuthCache()
         {
         }

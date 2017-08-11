@@ -16,7 +16,7 @@ namespace OpenTl.Server.IntegrationTests
         [Fact]
         public async Task Step1Test()
         {
-            var networkStream = await AuthHelper.GetServerStream();
+            var networkStream = await NetworkHelper.GetServerStream();
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
 
@@ -32,7 +32,7 @@ namespace OpenTl.Server.IntegrationTests
         [Fact]
         public async Task Step2Test()
         {
-            var networkStream = await AuthHelper.GetServerStream();
+            var networkStream = await NetworkHelper.GetServerStream();
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             
@@ -49,7 +49,7 @@ namespace OpenTl.Server.IntegrationTests
         [Fact]
         public async Task Step3Test()
         {
-            var networkStream = await AuthHelper.GetServerStream();
+            var networkStream = await NetworkHelper.GetServerStream();
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             

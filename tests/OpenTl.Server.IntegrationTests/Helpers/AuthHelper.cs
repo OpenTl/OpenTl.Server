@@ -7,8 +7,10 @@
 
     using OpenTl.Common.Auth;
     using OpenTl.Common.Auth.Client;
+    using OpenTl.Common.Interfaces;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
+    using OpenTl.Server.IntegrationTests.Entities;
 
     public static class AuthHelper
     {
@@ -23,85 +25,58 @@ M1WncvMct9os0FJWKaeJ0BUatxHrZC/xsaW5nS9f6Pjw9TfMwuU9qnEZye4Gmgu8
 cQIDAQAB
 -----END PUBLIC KEY-----";
 
-        internal static void InitConnection(out NetworkStream networkStream, out int mesSeqNumber, out AuthKey authKey, out int serverTime)
+        internal static void InitConnection(out NetworkStream networkStream, ref int seqNumber, out ISession session, out int serverTime)
         {
-            var connectTask = AuthHelper.GetServerStream();
+            session = new TestSession();
+            
+            var connectTask = NetworkHelper.GetServerStream();
             connectTask.Wait();
             
             networkStream = connectTask.Result;
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
             
-            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, mesSeqNumber);
-            mesSeqNumber++;
+            var resPq = GetStep1Response(networkStream, requestReqPq, seqNumber);
+            seqNumber++;
 
-            var serverDhParams =  AuthHelper.GetStep2Response(resPq, networkStream, mesSeqNumber, out var newNonce);
-            mesSeqNumber++;
+            var serverDhParams =  GetStep2Response(resPq, networkStream, seqNumber, out var newNonce);
+            seqNumber++;
 
-            var response = AuthHelper.GetStep3Response(networkStream, serverDhParams, mesSeqNumber, newNonce, out var clientAgree, out var time);
-            mesSeqNumber++;
+            var response = GetStep3Response(networkStream, serverDhParams, seqNumber, newNonce, out var clientAgree, out var time);
+            seqNumber++;
             
-            authKey = new AuthKey(clientAgree);
+            session.AuthKey = new AuthKey(clientAgree);
+            session.ServerSalt = SaltHelper.ComputeServerSalt(newNonce, serverDhParams.ServerNonce);
+            
             serverTime = time;
         }
         
-        internal static TDhGenOk GetStep3Response(Stream networkStream, TServerDHParamsOk serverDhParams, int mesSeqNumber, byte[] newNonce, out byte[] clientAgree, out int serverTime)
+        internal static TDhGenOk GetStep3Response(NetworkStream networkStream, TServerDHParamsOk serverDhParams, int seqNumber, byte[] newNonce, out byte[] clientAgree, out int serverTime)
         {
             var reqDhParams = Step3ClientHelper.GetRequest(serverDhParams, newNonce, out var agree, out var time);
             clientAgree = agree;
             serverTime = time;
 
-            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
-            var reqMessage = NetworkHelper.EncodeMessage(reqDhParamsData, mesSeqNumber);
-
-            networkStream.Write(reqMessage, 0, reqMessage.Length);
-            
-            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
-            {
-                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
-                return (TDhGenOk) Serializer.DeserializeObject(resMessage);
-            }
+            var package = Serializer.SerializeObject(reqDhParams);
+            var response = networkStream.SendAndRecive(package, seqNumber);
+            return Serializer.DeserializeObject(response).Cast<TDhGenOk>();
         }
 
-        internal static TServerDHParamsOk  GetStep2Response(TResPQ resPq, Stream networkStream, int mesSeqNumber,  out byte[] clientNonce)
+        internal static TServerDHParamsOk  GetStep2Response(TResPQ resPq, NetworkStream networkStream, int seqNumber,  out byte[] clientNonce)
         {
             var reqDhParams = Step2ClientHelper.GetRequest(resPq, PublicKey, out var newNonce);
             clientNonce = newNonce;
 
-            var reqDhParamsData = Serializer.SerializeObject(reqDhParams);
-            var reqMessage = NetworkHelper.EncodeMessage(reqDhParamsData, mesSeqNumber);
-
-            networkStream.Write(reqMessage, 0, reqMessage.Length);
-            
-            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
-            {
-                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
-                return (TServerDHParamsOk) Serializer.DeserializeObject(resMessage);
-            }
+            var package = Serializer.SerializeObject(reqDhParams);
+            var response = networkStream.SendAndRecive(package, seqNumber);
+            return Serializer.DeserializeObject(response).Cast<TServerDHParamsOk>();
         }
 
-        internal static TResPQ GetStep1Response(Stream networkStream, RequestReqPq resPq, int mesSeqNumber)
+        internal static TResPQ GetStep1Response(NetworkStream networkStream, RequestReqPq resPq, int seqNumber)
         {
-            var resPqData = Serializer.SerializeObject(resPq);
-
-            var reqMessage = NetworkHelper.EncodeMessage(resPqData, mesSeqNumber);
-            
-            networkStream.Write(reqMessage, 0, reqMessage.Length);
-
-            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
-            {
-                var resMessage = NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
-                return (TResPQ)Serializer.DeserializeObject(resMessage);
-            }
-        }
-
-        internal static async Task<NetworkStream> GetServerStream()
-        {
-            var client = new TcpClient();
-            await client.ConnectAsync("localhost", 433);
-
-            var networkStream = client.GetStream();
-            return networkStream;
-        }
+            var package = Serializer.SerializeObject(resPq);
+            var response = networkStream.SendAndRecive(package, seqNumber);
+            return Serializer.DeserializeObject(response).Cast<TResPQ>();
+        }       
     }
 }
