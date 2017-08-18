@@ -9,14 +9,14 @@
 
     using Xunit;
 
-    public class ReqestInitConnectionTest
+    public class RequestInitConnectionTest
     {
         [Fact]
         public void SimpleTest()
         {
             var seqNumber = 0;
 
-            AuthHelper.InitConnection(out var networkStream, ref seqNumber, out var session, out int serverTime);
+            AuthHelper.Handshake(out var networkStream, ref seqNumber, out var session, out int serverTime);
             
             var request = new RequestInvokeWithLayer
                           {

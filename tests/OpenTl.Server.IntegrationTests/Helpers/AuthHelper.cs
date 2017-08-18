@@ -25,7 +25,7 @@ M1WncvMct9os0FJWKaeJ0BUatxHrZC/xsaW5nS9f6Pjw9TfMwuU9qnEZye4Gmgu8
 cQIDAQAB
 -----END PUBLIC KEY-----";
 
-        internal static void InitConnection(out NetworkStream networkStream, ref int seqNumber, out ISession session, out int serverTime)
+        internal static void Handshake(out NetworkStream networkStream, ref int seqNumber, out ISession session, out int serverTime)
         {
             session = new TestSession();
             

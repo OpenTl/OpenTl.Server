@@ -19,6 +19,9 @@ namespace OpenTl.Server.Back
             _handlers[0xd712e4be] = GrainFactory.GetGrain<IRequestReqDhParamsHandler>(0);
             _handlers[0xf5045f1f] = GrainFactory.GetGrain<IRequestSetClientDhParamsHandler>(0);
             _handlers[0xda9b0d0d] = GrainFactory.GetGrain<IRequestInvokeWithLayerHandler>(0);
+            _handlers[0x86aef0ec] = GrainFactory.GetGrain<IRequestSendCodeHandler>(0);
+            _handlers[0x1b067634] = GrainFactory.GetGrain<IRequestSignUpHandler>(0);
+            _handlers[0xbcd51581] = GrainFactory.GetGrain<IRequestSignInHandler>(0);
 
             return base.OnActivateAsync();
         }

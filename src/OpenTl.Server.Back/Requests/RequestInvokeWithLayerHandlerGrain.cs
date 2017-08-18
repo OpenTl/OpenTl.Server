@@ -17,7 +17,6 @@
                                DisabledFeatures = new TVector<IDisabledFeature>(),
                                MeUrlPrefix = "q",
                                SuggestedLangCode = "q",
-                               
                            };
             
             return Task.FromResult(data);
