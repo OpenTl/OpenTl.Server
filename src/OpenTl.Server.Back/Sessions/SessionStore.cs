@@ -3,19 +3,20 @@
     using System.Collections.Generic;
 
     using OpenTl.Common.Interfaces;
+    using OpenTl.Server.Back.Sessions.Interfaces;
 
-    public static class SessionStore
+    public class SessionStore : ISessionStore
     {
-        private static readonly Dictionary<ulong, ISession> Sessions  = new Dictionary<ulong, ISession>(); 
+        private readonly Dictionary<ulong, ISession> _sessions  = new Dictionary<ulong, ISession>(); 
 
-        public static bool TryGetSession(ulong authKeyId, out ISession sessionStore)
+        public bool TryGetSession(ulong authKeyId, out ISession sessionStore)
         {
-            return Sessions.TryGetValue(authKeyId, out sessionStore);
+            return _sessions.TryGetValue(authKeyId, out sessionStore);
         }
         
-        public static void SetSession(ISession session)
+        public void SetSession(ISession session)
         {
-            Sessions.Add(session.AuthKey.Id, session);
+            _sessions.Add(session.AuthKey.Id, session);
         }
     }
 }

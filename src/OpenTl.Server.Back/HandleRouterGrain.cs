@@ -8,6 +8,7 @@ using Orleans;
 namespace OpenTl.Server.Back
 {
     using OpenTl.Server.Back.Contracts.Requests;
+    using OpenTl.Server.Back.Contracts.Requests.Contacts;
 
     public class HandleRouterGrain : Grain, IPackageRouterGrain
     {
@@ -22,11 +23,12 @@ namespace OpenTl.Server.Back
             _handlers[0x86aef0ec] = GrainFactory.GetGrain<IRequestSendCodeHandler>(0);
             _handlers[0x1b067634] = GrainFactory.GetGrain<IRequestSignUpHandler>(0);
             _handlers[0xbcd51581] = GrainFactory.GetGrain<IRequestSignInHandler>(0);
+            _handlers[0x22c6aa08] = GrainFactory.GetGrain<IRequestGetContactsHandler>(0);
 
             return base.OnActivateAsync();
         }
 
-        public async Task<byte[]> Handle(Guid clientId, byte[] encryptedRequest)
+        public async Task<byte[]> Handle(ulong clientId, byte[] encryptedRequest)
         {
             var encryptionHandler = GrainFactory.GetGrain<IEncryptionHandler>(0);
 

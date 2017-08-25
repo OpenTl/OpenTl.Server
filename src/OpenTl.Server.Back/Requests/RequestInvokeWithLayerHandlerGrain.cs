@@ -8,7 +8,7 @@
 
     public class RequestInvokeWithLayerHandlerGrain: BaseObjectHandlerGrain<RequestInvokeWithLayer, IObject>, IRequestInvokeWithLayerHandler
     {
-        protected override Task<IObject> HandleProtected(Guid clientId, RequestInvokeWithLayer obj)
+        protected override Task<IObject> HandleProtected(ulong clientId, RequestInvokeWithLayer obj)
         {
             IObject data = new TConfig
                            {

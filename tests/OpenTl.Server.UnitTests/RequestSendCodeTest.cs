@@ -33,7 +33,7 @@ namespace OpenTl.Server.UnitTests
                 
             var grain = new RequestSendCodeHandlerGrain(userRepo);
             
-            var responseData = await grain.Handle(Guid.Empty, requestData);
+            var responseData = await grain.Handle(1, requestData);
             
             var response = Serializer.DeserializeObject(responseData).Cast<TSentCode>();
             

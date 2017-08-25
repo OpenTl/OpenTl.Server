@@ -40,7 +40,7 @@ namespace OpenTl.Server.UnitTests
             var userRepo = mUserRepo.Object;
             var grain = new RequestSignUpHandlerGrain(userRepo);
             
-            var responseData = await grain.Handle(Guid.Empty, requestData);
+            var responseData = await grain.Handle(1, requestData);
             
             var response = Serializer.DeserializeObject(responseData).Cast<TAuthorization>();
 

@@ -9,10 +9,18 @@
      using OpenTl.Server.Back.Cache;
      using OpenTl.Server.Back.Contracts.Auth;
      using OpenTl.Server.Back.Sessions;
+     using OpenTl.Server.Back.Sessions.Interfaces;
 
      public class RequestSetClientDhParamsHandlerGrain: BaseObjectHandlerGrain<RequestSetClientDHParams, ISetClientDHParamsAnswer>, IRequestSetClientDhParamsHandler
      {
-         protected override Task<ISetClientDHParamsAnswer> HandleProtected(Guid clientId, RequestSetClientDHParams obj)
+         private readonly ISessionStore _sessionStore;
+
+         public RequestSetClientDhParamsHandlerGrain(ISessionStore sessionStore)
+         {
+             _sessionStore = sessionStore;
+         }
+
+         protected override Task<ISetClientDHParamsAnswer> HandleProtected(ulong clientId, RequestSetClientDHParams obj)
          {
              var cache = AuthCache.GetCache(clientId);
  
@@ -25,7 +33,7 @@
                                ServerSalt = serverSalt,
                                SessionId = 0
                            };
-             SessionStore.SetSession(session);
+             _sessionStore.SetSession(session);
              
              return Task.FromResult(response);
          }

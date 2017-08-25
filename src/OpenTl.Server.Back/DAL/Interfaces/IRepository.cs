@@ -6,6 +6,7 @@
 
     public interface IRepository<TEntity> where TEntity : IEntity
     {
+
         IQueryable<TEntity> GetAll();
         
         void Create(TEntity entity);

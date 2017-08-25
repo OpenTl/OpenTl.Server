@@ -8,17 +8,23 @@
     using OpenTl.Common.GuardExtensions;
     using OpenTl.Common.MtProto;
     using OpenTl.Server.Back.Contracts;
-    using OpenTl.Server.Back.Sessions;
+    using OpenTl.Server.Back.Sessions.Interfaces;
 
     using Orleans;
 
     public class EncryptionHandlerGrain : Grain, IEncryptionHandler
     {
+        private readonly ISessionStore _sessionStore;
+
+        public EncryptionHandlerGrain(ISessionStore sessionStore)
+        {
+            _sessionStore = sessionStore;
+        }
         public Task<byte[]> TryEncrypt(byte[] package, ulong authKeyId)
         {
             Guard.That(package.Length).IsGreaterThan(4);
 
-            if (!SessionStore.TryGetSession(authKeyId, out var session))
+            if (!_sessionStore.TryGetSession(authKeyId, out var session))
             {
                 return Task.FromResult(package);
             }
@@ -34,7 +40,7 @@
 
             var authKeyId = BitConverter.ToUInt64(package, 0);
 
-            if (!SessionStore.TryGetSession(authKeyId, out var session))
+            if (!_sessionStore.TryGetSession(authKeyId, out var session))
             {
                 return Task.FromResult(Tuple.Create(package, (ulong)0));
             }

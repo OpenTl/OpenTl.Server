@@ -5,9 +5,9 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    using BarsGroup.CodeGuard;
+    using AutoMapper;
 
-    using MoreLinq;
+    using BarsGroup.CodeGuard;
 
     using OpenTl.Common.Crypto;
     using OpenTl.Common.GuardExtensions;
@@ -29,26 +29,17 @@
         {
             _userRepository = userRepository;
         }
-        
-        protected override Task<IAuthorization> HandleProtected(Guid clientId, RequestSignIn obj)
+
+        protected override Task<IAuthorization> HandleProtected(ulong clientId, RequestSignIn obj)
         {
             Guard.That(obj.PhoneCode).IsEqual("7777");
             Guard.That(obj.PhoneCodeHashAsBinary).IsItemsEquals(SHA1Helper.ComputeHashsum(Encoding.UTF8.GetBytes("7777")));
 
             var user = _userRepository.GetAll().Single(u => u.PhoneNumber == obj.PhoneNumber);
-            
-            var result = new TAuthorization
-                         {
-                             User = new TUser
-                                    {
-                                        FirstName = user.FirstName,
-                                        LastName = user.LastName,
-                                        Id = user.UserId,
-                                        Phone = user.PhoneNumber
-                                    }
-                         };
 
-            return Task.FromResult((IAuthorization)result);
+            var result = Mapper.Map<TAuthorization>(user).Cast<IAuthorization>();
+
+            return Task.FromResult(result);
         }
     }
 }

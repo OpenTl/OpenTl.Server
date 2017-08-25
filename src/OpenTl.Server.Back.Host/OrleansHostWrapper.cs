@@ -15,7 +15,7 @@ namespace OpenTl.Server.Back.Host
         {
             config.Defaults.TraceFileName = "false";
 
-            config.UseStartupType<BackServerStartup>();
+            config.UseStartupType<ServerStartup>();
 
             var siloArgs = SiloArgs.ParseArguments(args);
             if (siloArgs == null)

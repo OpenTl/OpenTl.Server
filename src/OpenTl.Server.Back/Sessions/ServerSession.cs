@@ -12,5 +12,7 @@
         public byte[] ServerSalt { get; set; }
 
         public ulong MessageId { get; set; }
+
+        public int CurrentUserId { get; set; }
     }
 }

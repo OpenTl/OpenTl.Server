@@ -34,7 +34,7 @@ namespace OpenTl.Server.UnitTests
             var requestData = Serializer.SerializeObject(request);
             
             var grain = new RequestInvokeWithLayerHandlerGrain();
-            var responseData = await grain.Handle(Guid.Empty, requestData);
+            var responseData = await grain.Handle(1, requestData);
             
             var response = Serializer.DeserializeObject(responseData).Cast<TConfig>();
             
