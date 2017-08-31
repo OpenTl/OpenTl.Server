@@ -6,7 +6,6 @@
 
     using OpenTl.Schema;
     using OpenTl.Server.Back.Entities;
-    using OpenTl.Server.Back.Maps;
 
     using Xunit;
 
@@ -18,12 +17,6 @@
             Mapper.Initialize(
                 cfg =>
                 {
-                    cfg.CreateMap<User, TUser>()
-                       .ForMember(u => u.FirstName, expression => expression.MapFrom(u => u.FirstName))
-                       .ForMember(u => u.LastName, expression => expression.MapFrom(u => u.LastName))
-                       .ForMember(u => u.Phone, expression => expression.MapFrom(u => u.PhoneNumber))
-                       .ForMember(u => u.Id, expression => expression.MapFrom(u => u.UserId))
-                       .IgnoreAllUnmapped();
                 });
 
             var user = new User

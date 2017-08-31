@@ -9,12 +9,6 @@
 
     public static class MapsExtensions
     {
-        public static IMappingExpression<TSource, TDest> IgnoreAllUnmapped<TSource, TDest>(this IMappingExpression<TSource, TDest> expression)
-        {
-            expression.ForAllMembers(opt => opt.Ignore());
-            return expression;
-        }
-
         public static void MapEnumerableToVector<TSource, TDestination>(this Profile cfg)
         {
             cfg.CreateMap<IEnumerable<TSource>, TVector<TDestination>>()

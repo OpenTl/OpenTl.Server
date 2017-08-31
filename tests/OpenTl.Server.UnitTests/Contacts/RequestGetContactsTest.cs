@@ -17,6 +17,7 @@
     using OpenTl.Server.Back.Maps;
     using OpenTl.Server.Back.Requests.Contacts;
     using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.UnitTests.Extensions;
 
     using Ploeh.AutoFixture;
 
@@ -44,23 +45,29 @@
 
             var mSessionStore = new Mock<ISessionStore>();
             mSessionStore.Setup(service => service.TryGetSession(authKeyId, out session));
+            RegisterMockAndInstance(mSessionStore);
 
             var mUserService = new Mock<IUserService>();
             mUserService.Setup(service => service.GetById(It.IsAny<int>())).Returns<int>(userId => userLists.Find(u => u.UserId == userId));
+            RegisterMockAndInstance(mUserService);
 
-            var handler = new RequestGetContactsHandlerGrain(mUserService.Object, mSessionStore.Object);
-            
+            RegisterSingleton<RequestGetContactsHandlerGrain>();
+
+            this.RegisterAllMaps();
             Mapper.AssertConfigurationIsValid();
 
-            currentUser  = new User();
-            Mapper.Map<User, TUser>(currentUser);
+            var handler = Resolve<RequestGetContactsHandlerGrain>();
+            
 
-            //var request = new RequestGetContacts();
-            //var requestData = Serializer.SerializeObject(request);
+            var request = new RequestGetContacts();
+            var requestData = Serializer.SerializeObject(request);
 
-            //var responseData = await handler.Handle(authKeyId, requestData);
-            //var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
+            var responseData = await handler.Handle(authKeyId, requestData);
+            var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
 
+
+            Assert.All(response.Contacts.Items, contact => currentUser.Contacts.Contains(contact.UserId));
+            Assert.All(response.Users.Items, user => currentUser.Users.Contains(user.Cast<TUser>().Id));
         }
     }
 }

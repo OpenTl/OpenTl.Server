@@ -25,8 +25,8 @@
                .As<TContact>();
 
             this.CreateMap<int, IUser>()
-            .IgnoreAllUnmapped()
-            .ConstructUsing(userId => Mapper.Map<User, TUser>(userService.GetById(userId)));
+            .ConstructUsing(userId => Mapper.Map<TUser>(userService.GetById(userId)))
+            .ForAllOtherMembers(expression => expression.Ignore());
 
             this.CreateMap<User, TContacts>()
                .ForMember(contacts => contacts.Contacts, expression => expression.MapFrom(user => user.Contacts))
