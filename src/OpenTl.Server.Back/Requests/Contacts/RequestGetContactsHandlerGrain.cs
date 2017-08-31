@@ -10,8 +10,29 @@
     using OpenTl.Server.Back.Contracts.Requests.Contacts;
     using OpenTl.Server.Back.Entities;
     using OpenTl.Server.Back.Maps;
-    using OpenTl.Server.Back.Sessions;
     using OpenTl.Server.Back.Sessions.Interfaces;
+
+    public class RequestGetContactsProfile : Profile
+    {
+        public RequestGetContactsProfile(IUserService userService)
+        {
+            this.MapEnumerableToVector<int, IContact>();
+            this.MapEnumerableToVector<int, IUser>();
+
+            this.CreateMap<int, IContact>()
+               .ForMember(contact => contact.UserId, expression => expression.MapFrom(u => u))
+               .ForMember(contact => contact.Mutual, expression => expression.UseValue(false))
+               .As<TContact>();
+
+            this.CreateMap<int, IUser>()
+            .IgnoreAllUnmapped()
+            .ConstructUsing(userId => Mapper.Map<User, TUser>(userService.GetById(userId)));
+
+            this.CreateMap<User, TContacts>()
+               .ForMember(contacts => contacts.Contacts, expression => expression.MapFrom(user => user.Contacts))
+               .ForMember(contacts => contacts.Users, expression => expression.MapFrom(user => user.Users));
+        }
+    }
 
     public class RequestGetContactsHandlerGrain : BaseObjectHandlerGrain<RequestGetContacts, IContacts>, IRequestGetContactsHandler
     {
@@ -23,31 +44,6 @@
         {
             _userService = userService;
             _sessionStore = sessionStore;
-
-            InitMaps();
-        }
-
-        private void InitMaps()
-        {
-            Mapper.Initialize(
-                cfg =>
-                {
-                    cfg.MapEnumerableToVector<int, IContact>();
-                    cfg.MapEnumerableToVector<int, IUser>();
-
-                    cfg.CreateMap<int, IContact>()
-                       .ForMember(contact => contact.UserId, expression => expression.MapFrom(u => u))
-                       .ForMember(contact => contact.Mutual, expression => expression.UseValue(false))
-                       .As<TContact>();
-
-                    cfg.CreateMap<int, IUser>()
-                    .IgnoreAllUnmapped()
-                    .ConstructUsing(userId => Mapper.Map<User, TUser>(_userService.GetById(userId)));
-
-                    cfg.CreateMap<User, TContacts>()
-                       .ForMember(contacts => contacts.Contacts, expression => expression.MapFrom(user => user.Contacts))
-                       .ForMember(contacts => contacts.Users, expression => expression.MapFrom(user => user.Users));
-                });
         }
 
         protected override Task<IContacts> HandleProtected(ulong clientId, RequestGetContacts obj)

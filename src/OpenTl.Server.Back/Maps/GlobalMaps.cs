@@ -7,23 +7,19 @@
 
     using TAuthorization = OpenTl.Schema.Auth.TAuthorization;
 
-    public static class GlobalMaps
+    public class GlobalProfile: Profile
     {
-        public static void RegisterMaps()
+        public GlobalProfile()
         {
-            Mapper.Initialize(
-                cfg =>
-                {
-                    cfg.CreateMap<User, TUser>()
-                       .IgnoreAllUnmapped()
-                       .ForMember(user => user.FirstName, expression => expression.MapFrom(user => user.FirstName))
-                       .ForMember(user => user.LastName, expression => expression.MapFrom(user => user.LastName))
-                       .ForMember(user => user.Phone, expression => expression.MapFrom(user => user.PhoneNumber))
-                       .ForMember(user => user.Id, expression => expression.MapFrom(user => user.UserId));
+            this.CreateMap<User, TUser>()
+               .ForMember(user => user.FirstName, expression => expression.MapFrom(user => user.FirstName))
+               .ForMember(user => user.LastName, expression => expression.MapFrom(user => user.LastName))
+               .ForMember(user => user.Phone, expression => expression.MapFrom(user => user.PhoneNumber))
+               .ForMember(user => user.Id, expression => expression.MapFrom(user => user.UserId))
+               .IgnoreAllUnmapped();
 
-                    cfg.CreateMap<User, TAuthorization>()
-                       .ForMember(authorization => authorization.User, expression => expression.MapFrom(user => user));
-                });
+            this.CreateMap<User, TAuthorization>()
+               .ForMember(authorization => authorization.User, expression => expression.MapFrom(user => user));
         }
     }
 }

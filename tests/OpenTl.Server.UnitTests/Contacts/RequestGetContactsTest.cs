@@ -48,16 +48,18 @@
             var mUserService = new Mock<IUserService>();
             mUserService.Setup(service => service.GetById(It.IsAny<int>())).Returns<int>(userId => userLists.Find(u => u.UserId == userId));
 
-            GlobalMaps.RegisterMaps();
             var handler = new RequestGetContactsHandlerGrain(mUserService.Object, mSessionStore.Object);
             
             Mapper.AssertConfigurationIsValid();
 
-            var request = new RequestGetContacts();
-            var requestData = Serializer.SerializeObject(request);
+            currentUser  = new User();
+            Mapper.Map<User, TUser>(currentUser);
 
-            var responseData = await handler.Handle(authKeyId, requestData);
-            var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
+            //var request = new RequestGetContacts();
+            //var requestData = Serializer.SerializeObject(request);
+
+            //var responseData = await handler.Handle(authKeyId, requestData);
+            //var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
 
         }
     }

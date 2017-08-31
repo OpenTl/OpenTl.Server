@@ -1,5 +1,9 @@
 ﻿namespace OpenTl.Server.UnitTests
 {
+    using AutoMapper;
+
+    using OpenTl.Server.Back;
+
     using Ploeh.AutoFixture;
     using Ploeh.AutoFixture.AutoMoq;
 
@@ -11,6 +15,14 @@
         {
             Fixture = new Fixture();
             Fixture.Customize(new AutoMoqCustomization());
+
+            Mapper.Initialize(
+                cfg =>
+                {
+                    cfg.ConstructServicesUsing();
+                    cfg.AddProfiles(typeof(ServerStartup).Assembly)
+                });
+
         }
     }
 }
