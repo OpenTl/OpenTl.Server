@@ -8,6 +8,6 @@
     <ProjectReference Include="..\OpenTl.Server.Back\OpenTl.Server.Back.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Server" Version="1.5.0" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="1.5.1" />
   </ItemGroup>
 </Project>

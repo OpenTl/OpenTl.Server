@@ -14,7 +14,6 @@
     using OpenTl.Schema.Serialization;
     using OpenTl.Server.Back.BLL.Interfaces;
     using OpenTl.Server.Back.Entities;
-    using OpenTl.Server.Back.Maps;
     using OpenTl.Server.Back.Requests.Contacts;
     using OpenTl.Server.Back.Sessions.Interfaces;
     using OpenTl.Server.UnitTests.Extensions;
@@ -35,7 +34,15 @@
             userLists.AddRange(Fixture.CreateMany<User>(6));
 
             currentUser.Users = userLists.Skip(1).Take(3).Select(u => u.UserId);
-            currentUser.Contacts = userLists.Skip(1).Skip(3).Select(u => u.UserId);
+            currentUser.Contacts = userLists.Skip(1).Skip(3)
+                                            .Select(
+                                                u => new Contact
+                                                     {
+                                                         UserId = u.UserId,
+                                                         PhoneNumber = u.PhoneNumber,
+                                                         FirstName = u.FirstName,
+                                                         LastName = u.LastName
+                                                     });
 
             var authKeyId = Fixture.Create<ulong>();
 
@@ -44,7 +51,7 @@
             var session = mSession.Object;
 
             var mSessionStore = new Mock<ISessionStore>();
-            mSessionStore.Setup(service => service.TryGetSession(authKeyId, out session));
+            mSessionStore.Setup(service => service.GetSession(authKeyId)).Returns<ulong>(arg => session);
             RegisterMockAndInstance(mSessionStore);
 
             var mUserService = new Mock<IUserService>();
@@ -66,7 +73,7 @@
             var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
 
 
-            Assert.All(response.Contacts.Items, contact => currentUser.Contacts.Contains(contact.UserId));
+            Assert.All(response.Contacts.Items, contact => currentUser.Contacts.Any(c => c.UserId == contact.UserId));
             Assert.All(response.Users.Items, user => currentUser.Users.Contains(user.Cast<TUser>().Id));
         }
     }

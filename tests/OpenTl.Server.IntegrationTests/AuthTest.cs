@@ -7,12 +7,11 @@ namespace OpenTl.Server.IntegrationTests
 {
     using OpenTl.Common.Auth.Client;
     using OpenTl.Common.Crypto;
+    using OpenTl.Server.IntegrationTests.Entities;
     using OpenTl.Server.IntegrationTests.Helpers;
 
     public class AuthTest
     {
-        private static int mesSeqNumber;
-        
         [Fact]
         public async Task Step1Test()
         {
@@ -20,8 +19,10 @@ namespace OpenTl.Server.IntegrationTests
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
 
-            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, mesSeqNumber);
-            mesSeqNumber++;
+            var session = new TestSession();
+
+            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, session);
+            session.SeqNumber++;
             
             Assert.Equal(nonce, resPq.Nonce);
             Assert.Equal(16, resPq.ServerNonce.Length);
@@ -35,12 +36,13 @@ namespace OpenTl.Server.IntegrationTests
             var networkStream = await NetworkHelper.GetServerStream();
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
-            
-            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, mesSeqNumber);
-            mesSeqNumber++;
+            var session = new TestSession();
 
-            var response =  AuthHelper.GetStep2Response(resPq, networkStream, mesSeqNumber, out var newNonce);
-            mesSeqNumber++;
+            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, session);
+            session.SeqNumber++;
+
+            var response =  AuthHelper.GetStep2Response(resPq, networkStream, session, out var newNonce);
+            session.SeqNumber++;
 
             Step3ClientHelper.GetRequest(response, newNonce, out var clientKeyPair, out var serverPublicKey);
             
@@ -52,14 +54,15 @@ namespace OpenTl.Server.IntegrationTests
             var networkStream = await NetworkHelper.GetServerStream();
 
             var requestReqPq = Step1ClientHelper.GetRequest(out var nonce);
-            
-            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, mesSeqNumber);
-            mesSeqNumber++;
+            var session = new TestSession();
 
-            var serverDhParams =  AuthHelper.GetStep2Response(resPq, networkStream, mesSeqNumber, out var newNonce);
-            mesSeqNumber++;
+            var resPq = AuthHelper.GetStep1Response(networkStream, requestReqPq, session);
+            session.SeqNumber++;
 
-            var response = AuthHelper.GetStep3Response(networkStream, serverDhParams, mesSeqNumber, newNonce, out var clientAgree, out var serverTime);
+            var serverDhParams =  AuthHelper.GetStep2Response(resPq, networkStream, session, out var newNonce);
+            session.SeqNumber++;
+
+            var response = AuthHelper.GetStep3Response(networkStream, serverDhParams, session, newNonce, out var clientAgree, out var serverTime);
         }
     }
 }

@@ -4,7 +4,6 @@
     using OpenTl.Schema;
     using OpenTl.Schema.Help;
     using OpenTl.Schema.Serialization;
-    using OpenTl.Server.IntegrationTests.Entities;
     using OpenTl.Server.IntegrationTests.Helpers;
 
     using Xunit;
@@ -14,9 +13,7 @@
         [Fact]
         public void SimpleTest()
         {
-            var seqNumber = 0;
-
-            AuthHelper.Handshake(out var networkStream, ref seqNumber, out var session, out int serverTime);
+            AuthHelper.Handshake(out var networkStream, out var session, out int serverTime);
             
             var request = new RequestInvokeWithLayer
                           {
@@ -33,12 +30,12 @@
                                           SystemVersion = "Win 10.0"
                                       }
                           };
-            
+
             var requestData = Serializer.SerializeObject(request);
-            var encryptedRequestData = MtProtoHelper.FromClientEncrypt(requestData, session, seqNumber);
-            seqNumber++;
+            var encryptedRequestData = MtProtoHelper.FromClientEncrypt(requestData, session, session.SeqNumber);
+            session.SeqNumber++;
             
-            var encryptedResponseData = networkStream.SendAndRecive(encryptedRequestData, seqNumber);
+            var encryptedResponseData = networkStream.SendAndRecieve(encryptedRequestData, session);
             var responseData = MtProtoHelper.FromServerDecrypt(encryptedResponseData, session, out var authKeyId, out var serverSalt, out var sessionId, out var messageId, out var sNumber);
             
             var response = Serializer.DeserializeObject(responseData);

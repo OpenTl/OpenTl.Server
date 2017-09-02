@@ -1,7 +1,6 @@
 
 namespace OpenTl.Server.UnitTests
 {
-    using System;
     using System.Threading.Tasks;
 
     using Xunit;

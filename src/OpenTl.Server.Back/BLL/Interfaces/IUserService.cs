@@ -5,5 +5,7 @@
     public interface IUserService
     {
         User GetById(int userId);
+
+        User GetByPhone(string phoneNumber);
     }
 }

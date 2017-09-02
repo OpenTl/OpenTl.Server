@@ -14,9 +14,15 @@
         {
             _repository = repository;
         }
+
         public User GetById(int userId)
         {
             return _repository.GetAll().Single(u => u.UserId == userId);
+        }
+
+        public User GetByPhone(string phoneNumber)
+        {
+            return _repository.GetAll().Single(u => u.PhoneNumber == phoneNumber);
         }
     }
 }

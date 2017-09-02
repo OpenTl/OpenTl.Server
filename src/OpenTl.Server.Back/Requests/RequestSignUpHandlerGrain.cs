@@ -16,6 +16,7 @@
     using OpenTl.Server.Back.Contracts.Requests;
     using OpenTl.Server.Back.DAL.Interfaces;
     using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Sessions.Interfaces;
 
     using IAuthorization = OpenTl.Schema.Auth.IAuthorization;
     using TAuthorization = OpenTl.Schema.Auth.TAuthorization;
@@ -25,12 +26,15 @@
     {
         private readonly IRepository<User> _userRepository;
 
-        public RequestSignUpHandlerGrain(IRepository<User> userRepository)
+        private readonly ISessionStore _sessionStore;
+
+        public RequestSignUpHandlerGrain(IRepository<User> userRepository, ISessionStore sessionStore)
         {
             _userRepository = userRepository;
+            _sessionStore = sessionStore;
         }
         
-        protected override Task<IAuthorization> HandleProtected(ulong clientId, RequestSignUp obj)
+        protected override Task<IAuthorization> HandleProtected(ulong keyId, RequestSignUp obj)
         {
             Guard.That(obj.PhoneCode).IsEqual("7777");
             Guard.That(obj.PhoneCodeHashAsBinary).IsItemsEquals(SHA1Helper.ComputeHashsum(Encoding.UTF8.GetBytes("7777")));
@@ -50,6 +54,9 @@
             
             _userRepository.Create(user);
 
+            var session = _sessionStore.GetSession(keyId);
+            session.CurrentUserId = user.UserId;
+                
             var result = Mapper.Map<TAuthorization>(user).Cast<IAuthorization>();
 
             return Task.FromResult(result);

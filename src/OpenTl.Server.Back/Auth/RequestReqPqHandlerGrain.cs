@@ -12,9 +12,9 @@ namespace OpenTl.Server.Back.Auth
 
     public class RequestReqPqHandlerGrain:  BaseObjectHandlerGrain<RequestReqPq, TResPQ>, IRequestReqPqHandler
     {
-        protected override Task<TResPQ> HandleProtected(ulong clientId, RequestReqPq obj)
+        protected override Task<TResPQ> HandleProtected(ulong keyId, RequestReqPq obj)
         {
-            var cache = AuthCache.NewAuthCache(clientId);
+            var cache = AuthCache.NewAuthCache(keyId);
 
             var respq = Step1ServerHelper.GetResponse(obj.Nonce, RsaKeyHelper.PublicKeyFingerprint, out var p, out var q, out var serverNonce);
             

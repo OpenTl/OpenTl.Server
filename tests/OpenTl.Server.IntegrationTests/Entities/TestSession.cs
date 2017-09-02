@@ -14,5 +14,7 @@
         public ulong MessageId { get; set; }
 
         public int CurrentUserId { get; set; }
+
+        public int SeqNumber { get; set; }
     }
 }

@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OpenTl.Server.Back
 {
+    using System.ComponentModel;
+    using System.Linq;
+
     using AutoMapper;
 
     using OpenTl.Server.Back.BLL;
@@ -16,12 +19,31 @@ namespace OpenTl.Server.Back
     {
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            Mapper.Initialize(cfg => cfg.AddProfiles(typeof(ServerStartup).Assembly));
-
             services.AddSingleton(typeof(IRepository<>), typeof(MemoryRepository<>));
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<ISessionStore, SessionStore>();
-            
+
+
+            Mapper.Initialize(
+                cfg =>
+                {
+
+                    var profileTypes = typeof(ServerStartup).Assembly.GetTypes().Where(typeof(Profile).IsAssignableFrom);
+                    foreach (var profileType in profileTypes)
+                    {
+                        services.AddSingleton(typeof(Profile), profileType);
+                    }
+
+                    var provider = services.BuildServiceProvider();
+
+                    cfg.ConstructServicesUsing(provider.GetService);
+
+                    foreach (var profile in provider.GetServices<Profile>())
+                    {
+                        cfg.AddProfile(profile);
+                    }
+                });
+
             return services.BuildServiceProvider();
         }
     }

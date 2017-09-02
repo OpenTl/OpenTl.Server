@@ -9,11 +9,16 @@
     {
         private readonly Dictionary<ulong, ISession> _sessions  = new Dictionary<ulong, ISession>(); 
 
-        public bool TryGetSession(ulong authKeyId, out ISession sessionStore)
+        public ISession GetSession(ulong authKeyId)
         {
-            return _sessions.TryGetValue(authKeyId, out sessionStore);
+            return _sessions[authKeyId];
         }
-        
+
+        public bool ContainsSession(ulong authKeyId)
+        {
+            return _sessions.ContainsKey(authKeyId);
+        }
+
         public void SetSession(ISession session)
         {
             _sessions.Add(session.AuthKey.Id, session);

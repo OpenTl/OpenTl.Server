@@ -13,9 +13,9 @@ namespace OpenTl.Server.Back.Auth
     public class RequestReqDhParamsHandlerGrain : BaseObjectHandlerGrain<RequestReqDHParams, IServerDHParams>,
         IRequestReqDhParamsHandler
     {
-        protected override Task<IServerDHParams> HandleProtected(ulong clientId, RequestReqDHParams obj)
+        protected override Task<IServerDHParams> HandleProtected(ulong keyId, RequestReqDHParams obj)
         {
-            var cache = AuthCache.GetCache(clientId);
+            var cache = AuthCache.GetCache(keyId);
 
             cache.Nonce = obj.Nonce;
             

@@ -7,6 +7,6 @@
     {
         Task<byte[]> TryEncrypt(byte[] package, ulong authKeyId);
         
-        Task<Tuple<byte[], ulong>> TryDecrypt(byte[] package);
+        Task<byte[]> TryDecrypt(byte[] package, ulong authKeyId);
     }
 }

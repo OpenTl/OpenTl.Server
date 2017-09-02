@@ -1,16 +1,9 @@
 ﻿namespace OpenTl.Server.UnitTests
 {
-    using System.Linq;
-    using System.Runtime.Remoting.Services;
-
-    using AutoMapper;
-
     using Castle.MicroKernel.Registration;
     using Castle.Windsor;
 
     using Moq;
-
-    using OpenTl.Server.Back;
 
     using Ploeh.AutoFixture;
     using Ploeh.AutoFixture.AutoMoq;

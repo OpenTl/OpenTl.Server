@@ -12,15 +12,15 @@
     using OpenTl.Server.Back.Maps;
     using OpenTl.Server.Back.Sessions.Interfaces;
 
-    public class RequestGetContactsProfile : Profile
+    public class RequestGetContactsAutomapperProfile : Profile
     {
-        public RequestGetContactsProfile(IUserService userService)
+        public RequestGetContactsAutomapperProfile(IUserService userService)
         {
-            this.MapEnumerableToVector<int, IContact>();
+            this.MapEnumerableToVector<Contact, IContact>();
             this.MapEnumerableToVector<int, IUser>();
 
-            this.CreateMap<int, IContact>()
-               .ForMember(contact => contact.UserId, expression => expression.MapFrom(u => u))
+            CreateMap<Contact, IContact>()
+               .ForMember(contact => contact.UserId, expression => expression.MapFrom(u => u.UserId))
                .ForMember(contact => contact.Mutual, expression => expression.UseValue(false))
                .As<TContact>();
 
@@ -46,9 +46,9 @@
             _sessionStore = sessionStore;
         }
 
-        protected override Task<IContacts> HandleProtected(ulong clientId, RequestGetContacts obj)
+        protected override Task<IContacts> HandleProtected(ulong keyId, RequestGetContacts obj)
         {
-            _sessionStore.TryGetSession(clientId, out var session);
+            var session =  _sessionStore.GetSession(keyId);
 
             var currentUser = _userService.GetById(session.CurrentUserId);
 

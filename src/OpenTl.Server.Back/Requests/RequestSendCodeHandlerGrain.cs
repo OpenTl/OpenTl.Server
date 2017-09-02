@@ -21,7 +21,7 @@
             _userRepository = userRepository;
         }
         
-        protected override Task<ISentCode> HandleProtected(ulong clientId, RequestSendCode obj)
+        protected override Task<ISentCode> HandleProtected(ulong keyId, RequestSendCode obj)
         {
             var result = new TSentCode
                          {

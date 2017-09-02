@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class User: IEntity
     {
@@ -9,9 +10,9 @@
 
         public int UserId { get; set; }
 
-        public IEnumerable<int> Users { get; set; } = new List<int>();
+        public IEnumerable<int> Users { get; set; } = Enumerable.Empty<int>();
 
-        public IEnumerable<int> Contacts { get; set; } = new List<int>();
+        public IEnumerable<Contact> Contacts { get; set; } = Enumerable.Empty<Contact>();
 
         public string PhoneNumber { get; set; }
 

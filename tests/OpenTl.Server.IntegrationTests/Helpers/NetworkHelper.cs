@@ -6,8 +6,10 @@
     using System.Threading.Tasks;
 
     using OpenTl.Common.Crypto;
+    using OpenTl.Common.MtProto;
     using OpenTl.Schema;
     using OpenTl.Schema.Serialization;
+    using OpenTl.Server.IntegrationTests.Entities;
 
     public static class NetworkHelper
     {
@@ -18,26 +20,43 @@
 
             return client.GetStream();
         }
-        
-        public static byte[] SendAndRecive(this NetworkStream networkStream, byte[] package, int seqNumber)
+
+        public static IObject SendAndRecieve(this NetworkStream networkStream, IObject request, TestSession testSession)
         {
-            var reqMessage = NetworkHelper.EncodeMessage(package, seqNumber);
+            var package = Serializer.SerializeObject(request);
+            var data = SendAndRecieve(networkStream, package, testSession);
+            return Serializer.DeserializeObject(data);
+        }
+
+        public static byte[] SendAndRecieve(this NetworkStream networkStream, byte[] package, TestSession testSession)
+        {
+            var reqMessage = EncodeMessage(package, testSession);
 
             networkStream.Write(reqMessage, 0, reqMessage.Length);
-            
-            using (var streamReader = new BinaryReader(networkStream, Encoding.UTF8, true))
-            {
-                return NetworkHelper.DecodeMessage(networkStream, out var seqNum, out var checksum);
-            }
+
+            var data = DecodeMessage(networkStream, out var seqNum, out var checksum);
+            return data;
         }
-        
-        private static byte[] EncodeMessage(byte[] bytes, int seqNumber)
+
+        public static IObject EncryptionSendAndRecieve(this NetworkStream networkStream, IObject request, TestSession testSession)
+        {
+            var requestData = Serializer.SerializeObject(request);
+            var encryptedRequestData = MtProtoHelper.FromClientEncrypt(requestData, testSession, testSession.SeqNumber);
+            testSession.SeqNumber++;
+
+            var encryptedResponseData = networkStream.SendAndRecieve(encryptedRequestData, testSession);
+            var responseData = MtProtoHelper.FromServerDecrypt(encryptedResponseData, testSession, out var authKeyId, out var serverSalt, out var sessionId, out var messageId, out var sNumber);
+
+            return Serializer.DeserializeObject(responseData);
+        }
+
+        private static byte[] EncodeMessage(byte[] bytes, TestSession session)
         {
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
                 writer.Write(bytes.Length + 12);
-                writer.Write(seqNumber);
+                writer.Write(session.SeqNumber);
                 writer.Write(bytes);
 
                 var checksum = Crc32.Compute(stream.ToArray());

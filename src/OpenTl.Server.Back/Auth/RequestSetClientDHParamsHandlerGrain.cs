@@ -20,9 +20,9 @@
              _sessionStore = sessionStore;
          }
 
-         protected override Task<ISetClientDHParamsAnswer> HandleProtected(ulong clientId, RequestSetClientDHParams obj)
+         protected override Task<ISetClientDHParamsAnswer> HandleProtected(ulong keyId, RequestSetClientDHParams obj)
          {
-             var cache = AuthCache.GetCache(clientId);
+             var cache = AuthCache.GetCache(keyId);
  
              var response = Step3ServerHelper.GetResponse(obj, cache.NewNonse, cache.KeyPair, out var serverAgree, out var serverSalt);
 

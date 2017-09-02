@@ -3,6 +3,6 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build" Version="1.5.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build" Version="1.5.1" />
   </ItemGroup>
 </Project>

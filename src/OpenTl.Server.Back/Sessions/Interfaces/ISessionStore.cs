@@ -4,8 +4,10 @@
 
     public interface ISessionStore
     {
-        bool TryGetSession(ulong authKeyId, out ISession sessionStore);
-
         void SetSession(ISession session);
+
+        ISession GetSession(ulong authKeyId);
+        
+        bool ContainsSession(ulong authKeyId);
     }
 }
