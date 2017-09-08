@@ -16,13 +16,13 @@
 
     public class RequestImportContactsAutomapperProfile: Profile
     {
-        public RequestImportContactsAutomapperProfile()
+        public RequestImportContactsAutomapperProfile(IUserService userService)
         {
             CreateMap<IInputContact, Contact>()
                 .ForMember(contact => contact.FirstName, expression => expression.MapFrom(contact => contact.FirstName))
                 .ForMember(contact => contact.LastName, expression => expression.MapFrom(contact => contact.LastName))
                 .ForMember(contact => contact.PhoneNumber, expression => expression.MapFrom(contact => contact.Phone))
-                .ForMember(contact => contact.UserId, expression => expression.Ignore())
+                .ForMember(contact => contact.UserId, expression => expression.MapFrom(contact =>  userService.GetByPhone(contact.Phone).UserId))
                 .ForAllOtherMembers(expression => expression.Ignore());
         }
     }
@@ -56,20 +56,16 @@
             {
                 var newContact = Mapper.Map<Contact>(contactsItem);
 
-                var user = _userService.GetByPhone(newContact.PhoneNumber);
-                newContact.UserId = user.UserId;
-
                 newContacts.Add(newContact);
                 importedContacts.Add(new TImportedContact
                                      {
-                                         UserId = user.UserId,
+                                         UserId = newContact.UserId,
                                          ClientId = contactsItem.ClientId
                                      });
             }
 
-            var contacts = Mapper.Map<Contact[]>(obj.Contacts.Items);
-
-            currentUser.Contacts = currentUser.Contacts.ToArray().Union(contacts);
+            currentUser.Contacts = currentUser.Contacts.ToArray().Union(newContacts).ToArray();
+            currentUser.Users = currentUser.Users.ToArray().Union(newContacts.Select(c => c.UserId)).ToArray();
 
             return Task.FromResult<IImportedContacts>(new TImportedContacts
                                                       {

@@ -1,6 +1,7 @@
 ﻿namespace OpenTl.Server.Back.DAL
 {
-    using System.Collections.Generic;
+    using System;
+    using System.Collections.Concurrent;
     using System.Linq;
 
     using OpenTl.Server.Back.DAL.Interfaces;
@@ -9,30 +10,30 @@
     public class MemoryRepository<TEntity>: IRepository<TEntity>
         where TEntity : IEntity
     {
-        private readonly List<TEntity> _entities = new List<TEntity>();
-        
+        private readonly ConcurrentDictionary<Guid, TEntity> _entities;
+
+        public MemoryRepository()
+        {
+            _entities = new ConcurrentDictionary<Guid, TEntity>();
+        }
         public IQueryable<TEntity> GetAll()
         {
-            return _entities.AsQueryable();
+            return _entities.Values.AsQueryable();
         }
 
         public void Create(TEntity entity)
         {
-            _entities.Add(entity);
+            _entities.AddOrUpdate(entity.Id, entity, (guid, e) => entity);
         }
 
         public void Update(TEntity entity)
         {
-            var item = _entities.Single(e => e.Id.Equals(entity.Id));
-                                
-            _entities.RemoveAt(_entities.IndexOf(item));
-                                
-            _entities.Add(entity);
+            _entities.AddOrUpdate(entity.Id, entity, (guid, e) => entity);
         }
 
         public void Delete(TEntity entity)
         {
-            _entities.RemoveAt(_entities.IndexOf(entity));
+            _entities.TryRemove(entity.Id, out var _);
         }
     }
 }

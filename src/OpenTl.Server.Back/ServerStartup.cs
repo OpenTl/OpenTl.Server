@@ -24,6 +24,7 @@ namespace OpenTl.Server.Back
             services.AddSingleton<ISessionStore, SessionStore>();
 
 
+            IServiceProvider serviceProvider = null;
             Mapper.Initialize(
                 cfg =>
                 {
@@ -34,17 +35,17 @@ namespace OpenTl.Server.Back
                         services.AddSingleton(typeof(Profile), profileType);
                     }
 
-                    var provider = services.BuildServiceProvider();
+                    serviceProvider = services.BuildServiceProvider();
 
-                    cfg.ConstructServicesUsing(provider.GetService);
+                    cfg.ConstructServicesUsing(serviceProvider.GetService);
 
-                    foreach (var profile in provider.GetServices<Profile>())
+                    foreach (var profile in serviceProvider.GetServices<Profile>())
                     {
                         cfg.AddProfile(profile);
                     }
                 });
 
-            return services.BuildServiceProvider();
+            return serviceProvider;
         }
     }
 }

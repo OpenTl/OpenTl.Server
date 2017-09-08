@@ -10,7 +10,7 @@
 
     public abstract class BaseTest
     {
-        protected Fixture Fixture { get; }
+        internal Fixture Fixture { get; }
 
         internal IWindsorContainer Container { get; } = new WindsorContainer();
 
@@ -41,7 +41,7 @@
         {
             Container.Register(Component.For<TService>().ImplementedBy<TImplementation>().LifestyleSingleton());
         }
-        protected void RegisterMockAndInstance<TService>(Mock<TService> mock)
+        protected internal void RegisterMockAndInstance<TService>(Mock<TService> mock)
             where TService : class
         {
             Container.Register(Component.For<Mock<TService>>().Instance(mock));

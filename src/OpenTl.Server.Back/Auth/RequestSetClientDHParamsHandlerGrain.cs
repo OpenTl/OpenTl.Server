@@ -29,7 +29,7 @@
              //TODO: set sessionId
              var session = new ServerSession
                            {
-                               AuthKey = new AuthKey(serverAgree.ToByteArray()),
+                               AuthKey = new AuthKey(serverAgree.ToByteArrayUnsigned()),
                                ServerSalt = serverSalt,
                                SessionId = 0
                            };

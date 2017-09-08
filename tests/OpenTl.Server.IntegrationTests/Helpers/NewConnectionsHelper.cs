@@ -1,5 +1,6 @@
 ﻿namespace OpenTl.Server.IntegrationTests.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -10,6 +11,8 @@
 
     public static class ConnectionsHelper
     {
+        private static readonly Random Random = new Random();
+        
         public static IReadOnlyList<ConnectionInfo> CreateConnections(int numberOfConnections)
         {
             return Enumerable.Range(0, numberOfConnections).Select(i => CreateConnection()).ToArray();
@@ -38,7 +41,7 @@
 
             var requestSendCode = new RequestSendCode
                                   {
-                                      PhoneNumber = "7777",
+                                      PhoneNumber = Random.Next(10000000).ToString(),
                                       ApiHash = "aaa",
                                       ApiId = 1111,
                                       AllowFlashcall = false,

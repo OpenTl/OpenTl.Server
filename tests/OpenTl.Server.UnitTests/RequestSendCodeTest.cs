@@ -12,7 +12,7 @@ namespace OpenTl.Server.UnitTests
     using OpenTl.Server.Back.Requests;
     using OpenTl.Server.UnitTests.Builders;
 
-    public class RequestSendCodeTest
+    public class RequestSendCodeTest: BaseTest
     {
         [Fact]
         public async Task SimpleTest()
@@ -28,9 +28,11 @@ namespace OpenTl.Server.UnitTests
             
             var requestData = Serializer.SerializeObject(request);
 
-            var userRepo = RepositoryBuilder.Build<User>().Object; 
-                
-            var grain = new RequestSendCodeHandlerGrain(userRepo);
+            this.BuildRepository<User>(); 
+            
+            RegisterSingleton<RequestSendCodeHandlerGrain>();
+
+            var grain = Resolve<RequestSendCodeHandlerGrain>();
             
             var responseData = await grain.Handle(1, requestData);
             

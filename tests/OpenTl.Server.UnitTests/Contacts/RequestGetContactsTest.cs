@@ -16,6 +16,7 @@
     using OpenTl.Server.Back.Entities;
     using OpenTl.Server.Back.Requests.Contacts;
     using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.UnitTests.Builders;
     using OpenTl.Server.UnitTests.Extensions;
 
     using Ploeh.AutoFixture;
@@ -27,49 +28,30 @@
         [Fact]
         public async Task SimpleTest()
         {
-            var userLists = new List<User>();
+            var userLists = new List<User>(Fixture.CreateMany<User>(6));
 
-            var currentUser = Fixture.Create<User>();
+            var currentUser = this.BuildUser(userLists.ToArray());
             userLists.Add(currentUser);
-            userLists.AddRange(Fixture.CreateMany<User>(6));
 
-            currentUser.Users = userLists.Skip(1).Take(3).Select(u => u.UserId);
-            currentUser.Contacts = userLists.Skip(1).Skip(3)
-                                            .Select(
-                                                u => new Contact
-                                                     {
-                                                         UserId = u.UserId,
-                                                         PhoneNumber = u.PhoneNumber,
-                                                         FirstName = u.FirstName,
-                                                         LastName = u.LastName
-                                                     });
+            this.BuildSessionStore(currentUser);
+          
+            this.BuildUserService(userLists.ToArray());
 
-            var authKeyId = Fixture.Create<ulong>();
-
-            var mSession = Fixture.Freeze<Mock<ISession>>();
-            mSession.Setup(s => s.CurrentUserId).Returns(currentUser.UserId);
-            var session = mSession.Object;
-
-            var mSessionStore = new Mock<ISessionStore>();
-            mSessionStore.Setup(service => service.GetSession(authKeyId)).Returns<ulong>(arg => session);
-            RegisterMockAndInstance(mSessionStore);
-
-            var mUserService = new Mock<IUserService>();
-            mUserService.Setup(service => service.GetById(It.IsAny<int>())).Returns<int>(userId => userLists.Find(u => u.UserId == userId));
-            RegisterMockAndInstance(mUserService);
-
+          
             RegisterSingleton<RequestGetContactsHandlerGrain>();
 
             this.RegisterAllMaps();
             Mapper.AssertConfigurationIsValid();
 
+                
             var handler = Resolve<RequestGetContactsHandlerGrain>();
-            
 
             var request = new RequestGetContacts();
             var requestData = Serializer.SerializeObject(request);
 
-            var responseData = await handler.Handle(authKeyId, requestData);
+            var session = Resolve<ISession>();
+            
+            var responseData = await handler.Handle(session.AuthKey.Id, requestData);
             var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
 
 

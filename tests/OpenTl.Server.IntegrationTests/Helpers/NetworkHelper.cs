@@ -38,7 +38,7 @@
             return data;
         }
 
-        public static IObject EncryptionSendAndRecieve(this NetworkStream networkStream, IObject request, TestSession testSession)
+        public static TObject EncryptionSendAndRecieve<TObject>(this NetworkStream networkStream, IRequest<TObject> request, TestSession testSession)
         {
             var requestData = Serializer.SerializeObject(request);
             var encryptedRequestData = MtProtoHelper.FromClientEncrypt(requestData, testSession, testSession.SeqNumber);
@@ -47,7 +47,7 @@
             var encryptedResponseData = networkStream.SendAndRecieve(encryptedRequestData, testSession);
             var responseData = MtProtoHelper.FromServerDecrypt(encryptedResponseData, testSession, out var authKeyId, out var serverSalt, out var sessionId, out var messageId, out var sNumber);
 
-            return Serializer.DeserializeObject(responseData);
+            return (TObject) Serializer.DeserializeObject(responseData);
         }
 
         private static byte[] EncodeMessage(byte[] bytes, TestSession session)

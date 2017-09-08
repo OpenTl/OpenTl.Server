@@ -10,7 +10,7 @@
 
     public static class RepositoryBuilder
     {
-        public static Mock<IRepository<TEntity>> Build<TEntity>() where TEntity : IEntity
+        public static void BuildRepository<TEntity>(this BaseTest baseTest) where TEntity : IEntity
         {
             var items = new List<TEntity>();
             
@@ -29,7 +29,7 @@
                                 items.Add(entity);
                             });
 
-            return mRepository;
+            baseTest.RegisterMockAndInstance(mRepository);
         }
     }
 }

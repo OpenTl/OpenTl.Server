@@ -16,6 +16,7 @@
     using OpenTl.Server.Back.Entities;
     using OpenTl.Server.Back.Requests.Contacts;
     using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.UnitTests.Builders;
     using OpenTl.Server.UnitTests.Extensions;
 
     using Ploeh.AutoFixture;
@@ -27,28 +28,15 @@
         [Fact]
         public async Task SimpleTest()
         {
-            var userLists = new List<User>();
+            var otherUsers = Fixture.CreateMany<User>(2).ToArray();
+            var userLists = new List<User>(otherUsers);
 
-            var currentUser = Fixture.Create<User>();
+            var currentUser = this.BuildUser(new User[0]);
             userLists.Add(currentUser);
-
-            var otherUsers = Fixture.CreateMany<User>(2);
-            userLists.AddRange(otherUsers);
-
-            var authKeyId = Fixture.Create<ulong>();
-
-            var mSession = Fixture.Freeze<Mock<ISession>>();
-            mSession.Setup(s => s.CurrentUserId).Returns(currentUser.UserId);
-            var session = mSession.Object;
-
-            var mSessionStore = new Mock<ISessionStore>();
-            mSessionStore.Setup(service => service.GetSession(authKeyId)).Returns<ulong>(arg => session);
-            RegisterMockAndInstance(mSessionStore);
-
-            var mUserService = new Mock<IUserService>();
-            mUserService.Setup(service => service.GetById(It.IsAny<int>())).Returns<int>(userId => userLists.Find(u => u.UserId == userId));
-            mUserService.Setup(service => service.GetByPhone(It.IsAny<string>())).Returns<string>(phoneNumber => userLists.Find(u => u.PhoneNumber == phoneNumber));
-            RegisterMockAndInstance(mUserService);
+            
+            this.BuildSessionStore(currentUser);
+         
+            this.BuildUserService(userLists.ToArray());
 
             RegisterSingleton<RequestImportContactsHandlerGrain>();
 
@@ -74,7 +62,10 @@
                           };
             var requestData = Serializer.SerializeObject(request);
 
-            var responseData = await handler.Handle(authKeyId, requestData);
+
+            var session = Resolve<ISession>();
+            var responseData = await handler.Handle(session.AuthKey.Id, requestData);
+            
             var response = Serializer.DeserializeObject(responseData).Cast<TImportedContacts>();
 
             Assert.All(response.Imported.Items, contact => Assert.Equal(contact.UserId, (int)contact.ClientId));
