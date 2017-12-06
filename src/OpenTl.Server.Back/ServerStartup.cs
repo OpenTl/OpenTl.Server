@@ -1,9 +1,9 @@
 ﻿using System;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OpenTl.Server.Back
 {
-    using System.ComponentModel;
     using System.Linq;
 
     using AutoMapper;
@@ -12,8 +12,6 @@ namespace OpenTl.Server.Back
     using OpenTl.Server.Back.BLL.Interfaces;
     using OpenTl.Server.Back.DAL;
     using OpenTl.Server.Back.DAL.Interfaces;
-    using OpenTl.Server.Back.Sessions;
-    using OpenTl.Server.Back.Sessions.Interfaces;
 
     public class ServerStartup
     {
@@ -21,7 +19,6 @@ namespace OpenTl.Server.Back
         {
             services.AddSingleton(typeof(IRepository<>), typeof(MemoryRepository<>));
             services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<ISessionStore, SessionStore>();
 
 
             IServiceProvider serviceProvider = null;

@@ -5,4 +5,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build" Version="1.5.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OpenTl.Common\src\OpenTl.Common\OpenTl.Common.csproj">
+      <Project>{47F3CBAB-8292-4004-87E7-1FC2EFDB9DBD}</Project>
+      <Name>OpenTl.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

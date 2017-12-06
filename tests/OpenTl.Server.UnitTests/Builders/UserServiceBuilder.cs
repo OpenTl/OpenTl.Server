@@ -5,7 +5,7 @@
     using Moq;
 
     using OpenTl.Server.Back.BLL.Interfaces;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
 
     public static class UserServiceBuilder
     {

@@ -1,6 +1,7 @@
 
 namespace OpenTl.Server.UnitTests
 {
+    using System;
     using System.Threading.Tasks;
 
     using Xunit;
@@ -8,7 +9,7 @@ namespace OpenTl.Server.UnitTests
     using OpenTl.Schema;
     using OpenTl.Schema.Auth;
     using OpenTl.Schema.Serialization;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Requests;
     using OpenTl.Server.UnitTests.Builders;
 
@@ -34,7 +35,7 @@ namespace OpenTl.Server.UnitTests
 
             var grain = Resolve<RequestSendCodeHandlerGrain>();
             
-            var responseData = await grain.Handle(1, requestData);
+            var responseData = await grain.Handle(Guid.NewGuid(), requestData);
             
             var response = Serializer.DeserializeObject(responseData).Cast<TSentCode>();
             

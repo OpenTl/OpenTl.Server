@@ -6,19 +6,20 @@ using Orleans;
 
 namespace OpenTl.Server.Front
 {
+    using System.Collections.Concurrent;
+
     public class MessageHandler: ChannelHandlerAdapter
     {
-        private static readonly Random Random = new Random();
-
         private readonly IPackageRouterGrain _router = GrainClient.GrainFactory.GetGrain<IPackageRouterGrain>(0);
 
-        private ulong _clientId;
+        private Guid _clientId;
+        
+        private static readonly ConcurrentDictionary<Guid, ConcurrentDictionary<Guid, IChannelHandlerContext>> Sessions = new ConcurrentDictionary<Guid, ConcurrentDictionary<Guid, IChannelHandlerContext>>();
+        private static readonly ConcurrentDictionary<Guid, Guid> Connections = new ConcurrentDictionary<Guid, Guid>();
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            var rand = new byte[8];
-            Random.NextBytes(rand);
-            _clientId = BitConverter.ToUInt64(rand, 0);
+            _clientId = Guid.NewGuid();
 
             base.ChannelActive(context);
         }
@@ -29,8 +30,33 @@ namespace OpenTl.Server.Front
             {
                 var resultData = await _router.Handle(_clientId, (byte[]) msg);
 
-                await ctx.WriteAndFlushAsync(resultData);
+                if (resultData.Item1.HasValue)
+                {
+                    var sessionId = resultData.Item1.Value;
+                    
+                    var currentSession = Sessions.GetOrAdd(sessionId, guid => new ConcurrentDictionary<Guid, IChannelHandlerContext>());
+                    currentSession.GetOrAdd(_clientId, ctx);
+                    
+                    Connections.GetOrAdd(_clientId, sessionId);
+                } 
+                
+                await ctx.WriteAndFlushAsync(resultData.Item2);
             });
+        }
+
+        public override void ChannelInactive(IChannelHandlerContext context)
+        {
+            if (Connections.TryRemove(_clientId, out var sessionId))
+            {
+                var connection = Sessions[sessionId];
+                
+                if (connection.TryRemove(_clientId, out var _) && connection.IsEmpty)
+                {
+                    Sessions.TryRemove(sessionId, out var _);
+                }
+            }
+            
+            base.ChannelInactive(context);
         }
     }
 }

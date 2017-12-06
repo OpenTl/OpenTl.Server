@@ -1,5 +1,6 @@
 ﻿namespace OpenTl.Server.UnitTests.Contacts
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -12,10 +13,8 @@
     using OpenTl.Schema;
     using OpenTl.Schema.Contacts;
     using OpenTl.Schema.Serialization;
-    using OpenTl.Server.Back.BLL.Interfaces;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Requests.Contacts;
-    using OpenTl.Server.Back.Sessions.Interfaces;
     using OpenTl.Server.UnitTests.Builders;
     using OpenTl.Server.UnitTests.Extensions;
 
@@ -33,7 +32,7 @@
             var currentUser = this.BuildUser(userLists.ToArray());
             userLists.Add(currentUser);
 
-            this.BuildSessionStore(currentUser);
+            var session = this.BuildSession(currentUser);
           
             this.BuildUserService(userLists.ToArray());
 
@@ -49,9 +48,7 @@
             var request = new RequestGetContacts();
             var requestData = Serializer.SerializeObject(request);
 
-            var session = Resolve<ISession>();
-            
-            var responseData = await handler.Handle(session.AuthKey.Id, requestData);
+            var responseData = await handler.Handle(session.AuthKey.ToGuid(), requestData);
             var response = Serializer.DeserializeObject(responseData).Cast<TContacts>();
 
 

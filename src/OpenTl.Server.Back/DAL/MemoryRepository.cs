@@ -4,8 +4,8 @@
     using System.Collections.Concurrent;
     using System.Linq;
 
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.DAL.Interfaces;
-    using OpenTl.Server.Back.Entities;
 
     public class MemoryRepository<TEntity>: IRepository<TEntity>
         where TEntity : IEntity
@@ -19,6 +19,11 @@
         public IQueryable<TEntity> GetAll()
         {
             return _entities.Values.AsQueryable();
+        }
+
+        public TEntity Get(Guid id)
+        {
+            return _entities[id];
         }
 
         public void Create(TEntity entity)

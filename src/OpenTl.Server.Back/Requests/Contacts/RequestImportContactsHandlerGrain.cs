@@ -10,9 +10,9 @@
     using OpenTl.Schema;
     using OpenTl.Schema.Contacts;
     using OpenTl.Server.Back.BLL.Interfaces;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Contracts.Requests.Contacts;
-    using OpenTl.Server.Back.Entities;
-    using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.Back.DAL.Interfaces;
 
     public class RequestImportContactsAutomapperProfile: Profile
     {
@@ -26,23 +26,24 @@
                 .ForAllOtherMembers(expression => expression.Ignore());
         }
     }
+
     public class RequestImportContactsHandlerGrain: BaseObjectHandlerGrain<RequestImportContacts, IImportedContacts>, IRequestImportContactsHandler
     {
         private readonly IUserService _userService;
 
-        private readonly ISessionStore _sessionStore;
+        private readonly IRepository<ServerSession> _sessionStore;
 
-        public RequestImportContactsHandlerGrain(IUserService userService, ISessionStore sessionStore)
+        public RequestImportContactsHandlerGrain(IUserService userService, IRepository<ServerSession> sessionStore)
         {
             _userService = userService;
             _sessionStore = sessionStore;
         }
 
-        protected override Task<IImportedContacts> HandleProtected(ulong keyId, RequestImportContacts obj)
+        protected override Task<IImportedContacts> HandleProtected(Guid keyId, RequestImportContacts obj)
         {
-            var session =  _sessionStore.GetSession(keyId);
+            var session =  _sessionStore.Get(keyId);
 
-            var currentUser = _userService.GetById(session.CurrentUserId);
+            var currentUser = _userService.GetById(session.UserId);
 
             if (obj.Replace)
             {

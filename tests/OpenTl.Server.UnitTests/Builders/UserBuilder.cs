@@ -2,7 +2,7 @@
 {
     using System.Linq;
 
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
 
     using Ploeh.AutoFixture;
 

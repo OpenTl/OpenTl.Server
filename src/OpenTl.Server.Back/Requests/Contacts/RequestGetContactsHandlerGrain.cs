@@ -1,5 +1,6 @@
 ﻿namespace OpenTl.Server.Back.Requests.Contacts
 {
+    using System;
     using System.Threading.Tasks;
 
     using AutoMapper;
@@ -7,10 +8,10 @@
     using OpenTl.Schema;
     using OpenTl.Schema.Contacts;
     using OpenTl.Server.Back.BLL.Interfaces;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Contracts.Requests.Contacts;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.DAL.Interfaces;
     using OpenTl.Server.Back.Maps;
-    using OpenTl.Server.Back.Sessions.Interfaces;
 
     public class RequestGetContactsAutomapperProfile : Profile
     {
@@ -37,19 +38,19 @@
     {
         private readonly IUserService _userService;
 
-        private readonly ISessionStore _sessionStore;
+        private readonly IRepository<ServerSession> _sessionRepository;
 
-        public RequestGetContactsHandlerGrain(IUserService userService, ISessionStore sessionStore)
+        public RequestGetContactsHandlerGrain(IUserService userService, IRepository<ServerSession> sessionRepository)
         {
             _userService = userService;
-            _sessionStore = sessionStore;
+            _sessionRepository = sessionRepository;
         }
 
-        protected override Task<IContacts> HandleProtected(ulong keyId, RequestGetContacts obj)
+        protected override Task<IContacts> HandleProtected(Guid keyId, RequestGetContacts obj)
         {
-            var session =  _sessionStore.GetSession(keyId);
+            var session =  _sessionRepository.Get(keyId);
 
-            var currentUser = _userService.GetById(session.CurrentUserId);
+            var currentUser = _userService.GetById(session.UserId);
 
             var response = Mapper.Map<TContacts>(currentUser).Cast<IContacts>();
 

@@ -1,12 +1,13 @@
 ﻿namespace OpenTl.Server.UnitTests.Messages
 {
+    using System;
     using System.Collections.Generic;
 
     using OpenTl.Common.Interfaces;
     using OpenTl.Schema;
     using OpenTl.Schema.Messages;
     using OpenTl.Schema.Serialization;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Requests.Messages;
     using OpenTl.Server.UnitTests.Builders;
 
@@ -27,7 +28,7 @@
             var currentUser = this.BuildUser(otherUser);
             userLists.Add(currentUser);
             
-            this.BuildSessionStore(currentUser);
+            var session = this.BuildSession(currentUser);
          
             this.BuildUserService(userLists.ToArray());
             
@@ -35,8 +36,6 @@
             
             RegisterSingleton<RequestSendMessageHandlerGrain>();
 
-            var session = Resolve<ISession>();
-            
             var grain = Resolve<RequestSendMessageHandlerGrain>();
 
             var request = new RequestSendMessage
@@ -54,7 +53,8 @@
                           };
 
             var requestData = Serializer.SerializeObject(request);
-            var responseData = await grain.Handle(session.AuthKey.Id, requestData);
+            
+            var responseData = await grain.Handle(session.AuthKey.ToGuid(), requestData);
 
             var response = Serializer.DeserializeObject(responseData);
 

@@ -7,9 +7,9 @@
 
     using OpenTl.Common.Crypto;
     using OpenTl.Schema.Auth;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Contracts.Requests;
     using OpenTl.Server.Back.DAL.Interfaces;
-    using OpenTl.Server.Back.Entities;
 
     public class RequestSendCodeHandlerGrain : BaseObjectHandlerGrain<RequestSendCode, ISentCode>,
                                                IRequestSendCodeHandler
@@ -21,7 +21,7 @@
             _userRepository = userRepository;
         }
         
-        protected override Task<ISentCode> HandleProtected(ulong keyId, RequestSendCode obj)
+        protected override Task<ISentCode> HandleProtected(Guid keyId, RequestSendCode obj)
         {
             var result = new TSentCode
                          {

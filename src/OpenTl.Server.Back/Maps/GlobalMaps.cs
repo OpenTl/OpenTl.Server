@@ -3,7 +3,7 @@
     using AutoMapper;
 
     using OpenTl.Schema;
-    using OpenTl.Server.Back.Entities;
+    using OpenTl.Server.Back.Contracts.Entities;
 
     using TAuthorization = OpenTl.Schema.Auth.TAuthorization;
 

@@ -12,7 +12,7 @@ namespace OpenTl.Server.Back.Auth
 
     public class RequestReqPqHandlerGrain:  BaseObjectHandlerGrain<RequestReqPq, TResPQ>, IRequestReqPqHandler
     {
-        protected override Task<TResPQ> HandleProtected(ulong keyId, RequestReqPq obj)
+        protected override Task<TResPQ> HandleProtected(Guid keyId, RequestReqPq obj)
         {
             var cache = AuthCache.NewAuthCache(keyId);
 

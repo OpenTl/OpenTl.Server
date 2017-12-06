@@ -41,6 +41,7 @@
         {
             Container.Register(Component.For<TService>().ImplementedBy<TImplementation>().LifestyleSingleton());
         }
+        
         protected internal void RegisterMockAndInstance<TService>(Mock<TService> mock)
             where TService : class
         {

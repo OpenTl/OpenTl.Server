@@ -5,8 +5,8 @@
 
     public interface IEncryptionHandler : Orleans.IGrainWithIntegerKey
     {
-        Task<byte[]> TryEncrypt(byte[] package, ulong authKeyId);
+        Task<byte[]> TryEncrypt(byte[] package, Guid authKeyId);
         
-        Task<byte[]> TryDecrypt(byte[] package, ulong authKeyId);
+        Task<byte[]> TryDecrypt(byte[] package, Guid authKeyId);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OpenTl.Server.Back.Entities
+﻿namespace OpenTl.Server.Back.Contracts.Entities
 {
     using System;
     using System.Collections.Generic;

@@ -26,12 +26,12 @@ namespace OpenTl.Server.Back.Cache
         {
         }
         
-        public static AuthCache GetCache(ulong clientId)
+        public static AuthCache GetCache(Guid clientId)
         {
             return (AuthCache) Cache.Get(clientId.ToString());
         }
         
-        public static AuthCache NewAuthCache(ulong clientId)
+        public static AuthCache NewAuthCache(Guid clientId)
         {
             var cacheItem = new AuthCache();
             Cache.Add(clientId.ToString(), cacheItem, new CacheItemPolicy {AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(10)});

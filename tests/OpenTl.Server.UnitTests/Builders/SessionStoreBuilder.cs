@@ -1,29 +1,28 @@
 ﻿namespace OpenTl.Server.UnitTests.Builders
 {
-    using Moq;
+    using System.Linq;
 
     using OpenTl.Common.Auth;
-    using OpenTl.Common.Interfaces;
-    using OpenTl.Server.Back.Entities;
-    using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.Back.Contracts.Entities;
 
     using Ploeh.AutoFixture;
 
-    public static class SessionStoreBuilder
+    internal static class SessionBuilder
     {
-        public static void BuildSessionStore(this BaseTest baseTest, User currentUser )
+        public static ServerSession BuildSession(this BaseTest baseTest, User currentUser )
         {
-            var mSession = baseTest.Fixture.Freeze<Mock<ISession>>();
-            mSession.Setup(s => s.CurrentUserId).Returns(currentUser.UserId);
-            mSession.Setup(s => s.AuthKey).Returns(baseTest.Fixture.Create<AuthKey>());
-            var session = mSession.Object;
+            var authKey = new AuthKey(baseTest.Fixture.CreateMany<byte>(256).ToArray());
+            
+            var session = 
+                    baseTest.Fixture.Build<ServerSession>()
+                    .With(serverSession => serverSession.AuthKey, authKey)
+                    .With(serverSession => serverSession.UserId, currentUser.UserId)
+                    .With(serverSession => serverSession.Id, authKey.ToGuid())
+                    .Create();
 
-            baseTest.RegisterMockAndInstance(mSession);
+            baseTest.BuildRepository(session);
 
-            var mSessionStore = new Mock<ISessionStore>();
-            mSessionStore.Setup(service => service.GetSession(session.AuthKey.Id)).Returns<ulong>(arg => session);
-
-            baseTest.RegisterMockAndInstance(mSessionStore);
+            return session;
         }
     }
 }

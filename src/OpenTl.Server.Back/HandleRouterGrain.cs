@@ -7,19 +7,22 @@ using Orleans;
 
 namespace OpenTl.Server.Back
 {
+    using System.Linq;
+
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.Contracts.Requests;
     using OpenTl.Server.Back.Contracts.Requests.Contacts;
-    using OpenTl.Server.Back.Sessions.Interfaces;
+    using OpenTl.Server.Back.DAL.Interfaces;
 
     public class HandleRouterGrain : Grain, IPackageRouterGrain
     {
-        private readonly ISessionStore _sessionStore;
+        private readonly IRepository<ServerSession> _sessionRepository;
 
         private readonly Dictionary<uint, IObjectHandler> _handlers = new Dictionary<uint, IObjectHandler>();
 
-        public HandleRouterGrain(ISessionStore sessionStore)
+        public HandleRouterGrain(IRepository<ServerSession> sessionRepository)
         {
-            _sessionStore = sessionStore;
+            _sessionRepository = sessionRepository;
         }
         
         public override Task OnActivateAsync()
@@ -37,13 +40,15 @@ namespace OpenTl.Server.Back
             return base.OnActivateAsync();
         }
 
-        public async Task<byte[]> Handle(ulong keyId, byte[] request)
+        public async Task<Tuple<Guid?, byte[]>> Handle(Guid keyId, byte[] request)
         {
             var encryptionHandler = GrainFactory.GetGrain<IEncryptionHandler>(0);
 
-            var authKeyId = BitConverter.ToUInt64(request, 0);
-
-            var hasSession = _sessionStore.ContainsSession(authKeyId);
+            var guid = new byte[16];
+            Array.Copy(request, 0, guid, 8, 8);
+            var authKeyId = new Guid(guid);
+            
+            var hasSession = _sessionRepository.GetAll().Any(s => s.Id == authKeyId);
 
             if (hasSession)
             {
@@ -60,7 +65,9 @@ namespace OpenTl.Server.Back
                 responce = await encryptionHandler.TryEncrypt(responce, keyId);
             }
 
-            return responce;
+            return hasSession
+                       ? Tuple.Create((Guid?)authKeyId, responce)
+                       : Tuple.Create((Guid?)null, responce); 
         }
     }
 }

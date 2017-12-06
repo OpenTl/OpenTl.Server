@@ -3,8 +3,8 @@
     using System.Linq;
 
     using OpenTl.Server.Back.BLL.Interfaces;
+    using OpenTl.Server.Back.Contracts.Entities;
     using OpenTl.Server.Back.DAL.Interfaces;
-    using OpenTl.Server.Back.Entities;
 
     public class UserService : IUserService
     {

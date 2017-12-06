@@ -1,4 +1,4 @@
-﻿namespace OpenTl.Server.Back.Entities
+﻿namespace OpenTl.Server.Back.Contracts.Entities
 {
     using System;
 
@@ -8,7 +8,7 @@
 
         public string Content { get; set; }
         
-        public DateTime Date { get; set; }
+        public int Date { get; set; }
 
         public int FromUserId { get; set; }
         

@@ -8,32 +8,36 @@
      using OpenTl.Schema;
      using OpenTl.Server.Back.Cache;
      using OpenTl.Server.Back.Contracts.Auth;
-     using OpenTl.Server.Back.Sessions;
-     using OpenTl.Server.Back.Sessions.Interfaces;
+     using OpenTl.Server.Back.Contracts.Entities;
+     using OpenTl.Server.Back.DAL.Interfaces;
 
      public class RequestSetClientDhParamsHandlerGrain: BaseObjectHandlerGrain<RequestSetClientDHParams, ISetClientDHParamsAnswer>, IRequestSetClientDhParamsHandler
      {
-         private readonly ISessionStore _sessionStore;
+         private readonly IRepository<ServerSession> _sessionStore;
 
-         public RequestSetClientDhParamsHandlerGrain(ISessionStore sessionStore)
+         public RequestSetClientDhParamsHandlerGrain(IRepository<ServerSession> sessionStore)
          {
              _sessionStore = sessionStore;
          }
 
-         protected override Task<ISetClientDHParamsAnswer> HandleProtected(ulong keyId, RequestSetClientDHParams obj)
+         protected override Task<ISetClientDHParamsAnswer> HandleProtected(Guid keyId, RequestSetClientDHParams obj)
          {
              var cache = AuthCache.GetCache(keyId);
  
              var response = Step3ServerHelper.GetResponse(obj, cache.NewNonse, cache.KeyPair, out var serverAgree, out var serverSalt);
 
              //TODO: set sessionId
+             
+             var authKey = new AuthKey(serverAgree.ToByteArrayUnsigned());
+             
              var session = new ServerSession
                            {
-                               AuthKey = new AuthKey(serverAgree.ToByteArrayUnsigned()),
+                               AuthKey = authKey,
                                ServerSalt = serverSalt,
-                               SessionId = 0
+                               SessionId = 0,
+                               Id = authKey.ToGuid() 
                            };
-             _sessionStore.SetSession(session);
+             _sessionStore.Create(session);
              
              return Task.FromResult(response);
          }
